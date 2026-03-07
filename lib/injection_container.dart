@@ -16,6 +16,11 @@ import 'features/auth/domain/usecases/login.dart';
 import 'features/auth/domain/usecases/logout.dart';
 import 'features/auth/domain/usecases/register.dart';
 import 'features/auth/presentation/bloc/auth_bloc.dart';
+import 'features/admin/data/datasources/admin_remote_data_source.dart';
+import 'features/admin/data/repositories/admin_product_repository_impl.dart';
+import 'features/admin/domain/repositories/admin_product_repository.dart';
+import 'features/admin/domain/usecases/create_product_usecase.dart';
+import 'features/admin/presentation/bloc/add_product_bloc.dart';
 
 final sl = GetIt.instance;
 
@@ -56,6 +61,23 @@ Future<void> init() async {
 
   /// Core
   sl.registerLazySingleton<NetworkInfo>(() => NetworkInfoImpl(sl()));
+
+  /// Features - Admin
+  // Use cases
+  sl.registerLazySingleton(() => CreateProductUseCase(sl()));
+
+  // Bloc
+  sl.registerFactory(() => AddProductBloc(createProductUseCase: sl()));
+
+  // Repository
+  sl.registerLazySingleton<AdminProductRepository>(
+    () => AdminProductRepositoryImpl(remoteDataSource: sl()),
+  );
+
+  // Data sources
+  sl.registerLazySingleton<AdminRemoteDataSource>(
+    () => AdminRemoteDataSourceImpl(client: sl()),
+  );
 
   // Ánh xạ AuthLocalDataSource thành TokenProvider cho GraphQLClient
   sl.registerLazySingleton<TokenProvider>(() => sl<AuthLocalDataSource>());

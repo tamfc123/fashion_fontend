@@ -5,6 +5,9 @@ class UserModel extends User {
     required super.id,
     required super.email,
     required super.name,
+    required super.role,
+    super.createdAt,
+    super.updatedAt,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
@@ -12,6 +15,13 @@ class UserModel extends User {
       id: json['id'] as String,
       email: json['email'] as String,
       name: json['name'] as String,
+      role: json['role'] as String? ?? 'USER', // Fallback
+      createdAt: json['createdAt'] != null
+          ? DateTime.tryParse(json['createdAt'] as String)
+          : null,
+      updatedAt: json['updatedAt'] != null
+          ? DateTime.tryParse(json['updatedAt'] as String)
+          : null,
     );
   }
 
@@ -20,6 +30,9 @@ class UserModel extends User {
       'id': id,
       'email': email,
       'name': name,
+      'role': role,
+      'createdAt': createdAt?.toIso8601String(),
+      'updatedAt': updatedAt?.toIso8601String(),
     };
   }
 
@@ -28,6 +41,9 @@ class UserModel extends User {
       id: user.id,
       email: user.email,
       name: user.name,
+      role: user.role,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
     );
   }
 }

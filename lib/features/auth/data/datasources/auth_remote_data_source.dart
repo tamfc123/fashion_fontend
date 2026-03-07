@@ -20,13 +20,14 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   @override
   Future<AuthResponseModel> login(String email, String password) async {
     const String loginMutation = r'''
-      mutation Login($email: String!, $password: String!) {
-        login(email: $email, password: $password) {
+      mutation Login($input: LoginInput!) {
+        login(input: $input) {
           token
           user {
             id
             email
             name
+            role
           }
         }
       }
@@ -34,13 +35,19 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
     final options = MutationOptions(
       document: gql(loginMutation),
-      variables: {'email': email, 'password': password},
+      variables: {
+        'input': {'email': email, 'password': password},
+      },
     );
 
     final result = await client.mutate(options);
 
     if (result.hasException) {
-      throw ServerException(message: result.exception.toString());
+      String errorMessage = result.exception.toString();
+      if (result.exception?.graphqlErrors.isNotEmpty == true) {
+        errorMessage = result.exception!.graphqlErrors.first.message;
+      }
+      throw ServerException(message: errorMessage);
     }
 
     if (result.data != null && result.data!['login'] != null) {
@@ -57,13 +64,14 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     String name,
   ) async {
     const String registerMutation = r'''
-      mutation Register($email: String!, $password: String!, $name: String!) {
-        register(email: $email, password: $password, name: $name) {
+      mutation Register($input: RegisterInput!) {
+        register(input: $input) {
           token
           user {
             id
             email
             name
+            role
           }
         }
       }
@@ -71,13 +79,19 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
     final options = MutationOptions(
       document: gql(registerMutation),
-      variables: {'email': email, 'password': password, 'name': name},
+      variables: {
+        'input': {'email': email, 'password': password, 'name': name},
+      },
     );
 
     final result = await client.mutate(options);
 
     if (result.hasException) {
-      throw ServerException(message: result.exception.toString());
+      String errorMessage = result.exception.toString();
+      if (result.exception?.graphqlErrors.isNotEmpty == true) {
+        errorMessage = result.exception!.graphqlErrors.first.message;
+      }
+      throw ServerException(message: errorMessage);
     }
 
     if (result.data != null && result.data!['register'] != null) {

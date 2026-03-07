@@ -5,7 +5,7 @@ import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
 import 'login_page.dart';
-import '../../../product/presentation/pages/home_page.dart';
+import '../../../home/presentation/pages/home_page.dart';
 
 class SplashPage extends StatefulWidget {
   const SplashPage({super.key});
@@ -28,9 +28,9 @@ class _SplashPageState extends State<SplashPage> {
       listenWhen: (previous, current) {
         // Tránh điều hướng chập chờn (double navigation). Chỉ navigate khi state thay đổi
         // thành AuthAuthenticated, AuthUnauthenticated, hoặc AuthError.
-        return current is AuthAuthenticated || 
-               current is AuthUnauthenticated || 
-               current is AuthError;
+        return current is AuthAuthenticated ||
+            current is AuthUnauthenticated ||
+            current is AuthError;
       },
       listener: (context, state) {
         if (state is AuthAuthenticated) {
@@ -45,7 +45,8 @@ class _SplashPageState extends State<SplashPage> {
       },
       child: const Scaffold(
         body: Center(
-          child: CircularProgressIndicator(), // Splash screen logic MVP đơn giản
+          child:
+              CircularProgressIndicator(), // Splash screen logic MVP đơn giản
         ),
       ),
     );
