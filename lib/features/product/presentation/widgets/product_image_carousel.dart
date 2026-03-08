@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 
 class ProductImageCarousel extends StatefulWidget {
@@ -11,6 +12,37 @@ class ProductImageCarousel extends StatefulWidget {
 
 class _ProductImageCarouselState extends State<ProductImageCarousel> {
   int _currentIndex = 0;
+  late PageController _pageController;
+  Timer? _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController();
+    _startTimer();
+  }
+
+  void _startTimer() {
+    if (widget.images.length > 1) {
+      _timer = Timer.periodic(const Duration(seconds: 4), (timer) {
+        if (_pageController.hasClients) {
+          int nextPage = (_currentIndex + 1) % widget.images.length;
+          _pageController.animateToPage(
+            nextPage,
+            duration: const Duration(milliseconds: 600),
+            curve: Curves.fastOutSlowIn,
+          );
+        }
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    _pageController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,6 +61,7 @@ class _ProductImageCarouselState extends State<ProductImageCarousel> {
           height: 450,
           width: double.infinity,
           child: PageView.builder(
+            controller: _pageController,
             itemCount: widget.images.length,
             onPageChanged: (index) {
               setState(() {
@@ -48,24 +81,47 @@ class _ProductImageCarouselState extends State<ProductImageCarousel> {
             },
           ),
         ),
-        // Pagination Dots
+        // Pagination Dots - Glassmorphism Pill (Option A)
         Positioned(
-          bottom: 16,
+          bottom: 24,
           left: 0,
           right: 0,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: List.generate(
-              widget.images.length,
-              (index) => Container(
-                margin: const EdgeInsets.symmetric(horizontal: 4),
-                width: _currentIndex == index ? 24 : 8,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: _currentIndex == index
-                      ? Colors.black
-                      : Colors.black.withAlpha(50),
-                  borderRadius: BorderRadius.circular(2),
+          child: Align(
+            alignment: Alignment.center,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(
+                  alpha: 0.6,
+                ), // White frosted glass
+                borderRadius: BorderRadius.circular(20), // Pill shape
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.1),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: List.generate(
+                  widget.images.length,
+                  (index) => AnimatedContainer(
+                    duration: const Duration(milliseconds: 300),
+                    margin: const EdgeInsets.symmetric(horizontal: 4),
+                    width: _currentIndex == index ? 20 : 6,
+                    height: 6,
+                    decoration: BoxDecoration(
+                      color: _currentIndex == index
+                          ? Colors
+                                .black // Active dot is stark black
+                          : Colors.black.withValues(
+                              alpha: 0.3,
+                            ), // Inactive is dim
+                      borderRadius: BorderRadius.circular(3),
+                    ),
+                  ),
                 ),
               ),
             ),

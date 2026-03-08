@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 
 import '../../../../injection_container.dart';
 import '../bloc/product_detail_bloc.dart';
@@ -35,10 +36,45 @@ class _ProductDetailPageView extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.black),
+        leading: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: CircleAvatar(
+            backgroundColor: Colors.white.withValues(alpha: 0.8),
+            child: IconButton(
+              icon: const Icon(Icons.arrow_back, color: Colors.black, size: 20),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+          ),
+        ),
         actions: [
-          IconButton(icon: const Icon(Icons.favorite_border), onPressed: () {}),
-          IconButton(icon: const Icon(Icons.share_outlined), onPressed: () {}),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: CircleAvatar(
+              backgroundColor: Colors.white.withValues(alpha: 0.8),
+              child: IconButton(
+                icon: const Icon(
+                  Icons.favorite_border,
+                  color: Colors.black,
+                  size: 20,
+                ),
+                onPressed: () {},
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: CircleAvatar(
+              backgroundColor: Colors.white.withValues(alpha: 0.8),
+              child: IconButton(
+                icon: const Icon(
+                  Icons.share_outlined,
+                  color: Colors.black,
+                  size: 20,
+                ),
+                onPressed: () {},
+              ),
+            ),
+          ),
         ],
       ),
       extendBodyBehindAppBar: true,
@@ -101,7 +137,10 @@ class _ProductDetailPageView extends StatelessWidget {
                             ),
                             const SizedBox(height: 16),
                             Text(
-                              '\$${price.toStringAsFixed(2)}',
+                              NumberFormat.currency(
+                                locale: 'vi_VN',
+                                symbol: 'đ',
+                              ).format(price),
                               style: const TextStyle(
                                 fontSize: 22,
                                 fontWeight: FontWeight.bold,
