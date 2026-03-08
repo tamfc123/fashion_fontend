@@ -1,47 +1,77 @@
+import 'dart:convert';
+import 'dart:io';
 import 'package:graphql_flutter/graphql_flutter.dart' hide ServerException;
 import 'package:http/http.dart' as http;
 
 import '../../../../core/error/exceptions.dart';
+import '../../../../core/network/token_provider.dart';
 import '../models/product_input_model.dart';
 
 abstract class AdminRemoteDataSource {
-  /// Calls the createProduct GraphQL mutation.
-  /// Throws a [ServerException] for all error codes.
-  Future<String> createProduct(ProductInputModel product);
+  Future<List<String>> uploadImages(List<File> files);
+  Future<String> createProduct(
+    ProductInputModel product, {
+    List<String>? imageUrls,
+  });
 }
 
 class AdminRemoteDataSourceImpl implements AdminRemoteDataSource {
   final GraphQLClient client;
+  final TokenProvider tokenProvider;
 
-  AdminRemoteDataSourceImpl({required this.client});
+  AdminRemoteDataSourceImpl({
+    required this.client,
+    required this.tokenProvider,
+  });
 
   @override
-  Future<String> createProduct(ProductInputModel product) async {
+  Future<List<String>> uploadImages(List<File> files) async {
+    if (files.isEmpty) return [];
+
+    final token = await tokenProvider.getToken();
+    final request = http.MultipartRequest(
+      'POST',
+      Uri.parse('http://localhost:5005/api/upload'),
+    );
+
+    if (token != null) {
+      request.headers['Authorization'] = 'Bearer $token';
+    }
+
+    for (var file in files) {
+      request.files.add(await http.MultipartFile.fromPath('images', file.path));
+    }
+
+    final streamedResponse = await request.send();
+    final response = await http.Response.fromStream(streamedResponse);
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      return List<String>.from(data['urls']);
+    } else {
+      throw ServerException(
+        message:
+            'Failed to upload images: ${response.statusCode} - ${response.body}',
+      );
+    }
+  }
+
+  @override
+  Future<String> createProduct(
+    ProductInputModel product, {
+    List<String>? imageUrls,
+  }) async {
     const String createProductMutation = r'''
-      mutation CreateProduct($input: ProductInput!, $files: [Upload!]) {
-        createProduct(input: $input, files: $files) {
+      mutation CreateProduct($input: CreateProductInput!) {
+        createProduct(input: $input) {
           id
         }
       }
     ''';
 
-    List<http.MultipartFile> multipartFiles = [];
-    if (product.imageFiles != null && product.imageFiles!.isNotEmpty) {
-      for (var file in product.imageFiles!) {
-        final multipartFile = await http.MultipartFile.fromPath(
-          '', // Field name is handled under the hood by graphql_flutter
-          file.path,
-        );
-        multipartFiles.add(multipartFile);
-      }
-    }
-
     final options = MutationOptions(
       document: gql(createProductMutation),
-      variables: {
-        'input': product.toJson(),
-        if (multipartFiles.isNotEmpty) 'files': multipartFiles,
-      },
+      variables: {'input': product.toJson(imageUrls: imageUrls)},
     );
 
     final result = await client.mutate(options);
@@ -51,7 +81,6 @@ class AdminRemoteDataSourceImpl implements AdminRemoteDataSource {
     }
 
     if (result.data != null && result.data!['createProduct'] != null) {
-      // Assuming the backend returns the newly created product ID
       return result.data!['createProduct']['id'] as String;
     } else {
       throw ServerException(message: 'Invalid response from server');

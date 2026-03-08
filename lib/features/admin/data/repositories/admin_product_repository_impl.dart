@@ -18,7 +18,16 @@ class AdminProductRepositoryImpl implements AdminProductRepository {
     ProductInputEntity productEntity,
   ) async {
     try {
-      // Map Entity -> Model for GraphQL Data Source
+      // 1. Upload Images to REST API
+      List<String> imageUrls = [];
+      if (productEntity.imageFiles != null &&
+          productEntity.imageFiles!.isNotEmpty) {
+        imageUrls = await remoteDataSource.uploadImages(
+          productEntity.imageFiles!,
+        );
+      }
+
+      // 2. Map Entity -> Model for GraphQL Data Source
       final productModel = ProductInputModel(
         name: productEntity.name,
         description: productEntity.description,
@@ -36,7 +45,12 @@ class AdminProductRepositoryImpl implements AdminProductRepository {
             .toList(),
       );
 
-      final productId = await remoteDataSource.createProduct(productModel);
+      // 3. Execute GraphQL Mutation linking the stored Image URLs
+      final productId = await remoteDataSource.createProduct(
+        productModel,
+        imageUrls: imageUrls,
+      );
+
       return Right(productId);
     } on ServerException catch (e) {
       return Left(ServerFailure(message: e.message));

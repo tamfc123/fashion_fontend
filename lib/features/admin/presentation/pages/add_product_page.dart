@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 
-import '../../../../injection_container.dart';
 import '../../domain/entities/product_input_entity.dart';
 import '../../domain/entities/variant_input_entity.dart';
 import '../bloc/add_product_bloc.dart';
@@ -204,10 +203,26 @@ class _AddProductPageState extends State<AddProductPage> {
                 ),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: TextFormField(
-                    controller: variant.sizeController,
-                    decoration: const InputDecoration(labelText: 'Size (opt)'),
-                    enabled: !isLoading,
+                  child: DropdownButtonFormField<String>(
+                    initialValue: variant.sizeController.text.isEmpty
+                        ? null
+                        : variant.sizeController.text,
+                    decoration: const InputDecoration(labelText: 'Size *'),
+                    items: const [
+                      DropdownMenuItem(value: 'XS', child: Text('XS')),
+                      DropdownMenuItem(value: 'S', child: Text('S')),
+                      DropdownMenuItem(value: 'M', child: Text('M')),
+                      DropdownMenuItem(value: 'L', child: Text('L')),
+                      DropdownMenuItem(value: 'XL', child: Text('XL')),
+                    ],
+                    onChanged: isLoading
+                        ? null
+                        : (value) {
+                            if (value != null) {
+                              variant.sizeController.text = value;
+                            }
+                          },
+                    validator: (value) => value == null ? 'Required' : null,
                   ),
                 ),
               ],
@@ -260,192 +275,203 @@ class _AddProductPageState extends State<AddProductPage> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => sl<AddProductBloc>(),
-      child: Scaffold(
-        appBar: AppBar(title: const Text('Add Product (Admin)')),
-        body: BlocConsumer<AddProductBloc, AddProductState>(
-          listener: (context, state) {
-            if (state is AddProductSuccess) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Product added successfully!')),
-              );
-              Navigator.of(context).pop();
-            } else if (state is AddProductError) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(state.message),
-                  backgroundColor: Colors.redAccent,
-                  behavior: SnackBarBehavior.fixed,
-                ),
-              );
-            }
-          },
-          builder: (context, state) {
-            final isLoading = state is AddProductLoading;
-
-            return Form(
-              key: _formKey,
-              child: ListView(
-                padding: const EdgeInsets.all(16.0),
-                children: [
-                  const Text(
-                    'Basic Information',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 12),
-                  TextFormField(
-                    controller: _nameController,
-                    decoration: const InputDecoration(
-                      labelText: 'Product Name',
-                      border: OutlineInputBorder(),
-                    ),
-                    enabled: !isLoading,
-                    validator: (value) =>
-                        (value == null || value.isEmpty) ? 'Required' : null,
-                  ),
-                  const SizedBox(height: 16),
-                  TextFormField(
-                    controller: _descController,
-                    decoration: const InputDecoration(
-                      labelText: 'Description',
-                      border: OutlineInputBorder(),
-                    ),
-                    maxLines: 3,
-                    enabled: !isLoading,
-                    validator: (value) =>
-                        (value == null || value.isEmpty) ? 'Required' : null,
-                  ),
-                  const SizedBox(height: 16),
-                  TextFormField(
-                    controller: _categoryController,
-                    decoration: const InputDecoration(
-                      labelText: 'Category',
-                      border: OutlineInputBorder(),
-                    ),
-                    enabled: !isLoading,
-                    validator: (value) =>
-                        (value == null || value.isEmpty) ? 'Required' : null,
-                  ),
-                  const SizedBox(height: 32),
-
-                  // --- Image Picker Section ---
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        'Product Images',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      TextButton.icon(
-                        onPressed: isLoading ? null : _pickImages,
-                        icon: const Icon(Icons.add_photo_alternate),
-                        label: const Text('Add Images'),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  if (_selectedImages.isNotEmpty)
-                    SizedBox(
-                      height: 120,
-                      child: ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: _selectedImages.length,
-                        itemBuilder: (context, index) {
-                          return Stack(
-                            children: [
-                              Container(
-                                margin: const EdgeInsets.only(right: 8, top: 8),
-                                width: 100,
-                                height: 100,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(8),
-                                  image: DecorationImage(
-                                    image: FileImage(_selectedImages[index]),
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-                              ),
-                              Positioned(
-                                top: 0,
-                                right: 0,
-                                child: GestureDetector(
-                                  onTap: () => _removeImage(index),
-                                  child: Container(
-                                    decoration: const BoxDecoration(
-                                      color: Colors.red,
-                                      shape: BoxShape.circle,
-                                    ),
-                                    padding: const EdgeInsets.all(4),
-                                    child: const Icon(
-                                      Icons.close,
-                                      color: Colors.white,
-                                      size: 16,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          );
-                        },
-                      ),
-                    )
-                  else
-                    Container(
-                      height: 100,
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        color: Colors.grey.shade200,
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(
-                          color: Colors.grey.shade400,
-                          style: BorderStyle.solid,
-                        ),
-                      ),
-                      alignment: Alignment.center,
-                      child: const Text('No images selected (Max 5)'),
-                    ),
-                  const SizedBox(height: 32),
-
-                  // --- End Image Picker Section ---
-                  const Text(
-                    'Variants',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 12),
-                  ..._variants.asMap().entries.map((entry) {
-                    return _buildVariantItem(entry.key, entry.value, isLoading);
-                  }),
-                  ElevatedButton.icon(
-                    onPressed: isLoading ? null : _addVariant,
-                    icon: const Icon(Icons.add),
-                    label: const Text('Add Variant'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.grey.shade200,
-                      foregroundColor: Colors.black,
-                    ),
-                  ),
-                  const SizedBox(height: 40),
-                  ElevatedButton(
-                    onPressed: isLoading ? null : _submitForm,
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                    ),
-                    child: isLoading
-                        ? const CircularProgressIndicator(color: Colors.white)
-                        : const Text(
-                            'Publish Product',
-                            style: TextStyle(fontSize: 16),
-                          ),
-                  ),
-                ],
+    return Scaffold(
+      appBar: AppBar(title: const Text('Add Product (Admin)')),
+      body: BlocConsumer<AddProductBloc, AddProductState>(
+        listener: (context, state) {
+          if (state is AddProductSuccess) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Product added successfully!')),
+            );
+            Navigator.of(context).pop();
+          } else if (state is AddProductError) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.message),
+                backgroundColor: Colors.redAccent,
+                behavior: SnackBarBehavior.floating,
               ),
             );
-          },
-        ),
+          }
+        },
+        builder: (context, state) {
+          final isLoading = state is AddProductLoading;
+
+          return Form(
+            key: _formKey,
+            child: ListView(
+              padding: const EdgeInsets.all(16.0),
+              children: [
+                const Text(
+                  'Basic Information',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 12),
+                TextFormField(
+                  controller: _nameController,
+                  decoration: const InputDecoration(
+                    labelText: 'Product Name',
+                    border: OutlineInputBorder(),
+                  ),
+                  enabled: !isLoading,
+                  validator: (value) =>
+                      (value == null || value.isEmpty) ? 'Required' : null,
+                ),
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: _descController,
+                  decoration: const InputDecoration(
+                    labelText: 'Description',
+                    border: OutlineInputBorder(),
+                  ),
+                  maxLines: 3,
+                  enabled: !isLoading,
+                  validator: (value) =>
+                      (value == null || value.isEmpty) ? 'Required' : null,
+                ),
+                const SizedBox(height: 16),
+                DropdownButtonFormField<String>(
+                  initialValue: _categoryController.text.isEmpty
+                      ? null
+                      : _categoryController.text,
+                  decoration: const InputDecoration(
+                    labelText: 'Category',
+                    border: OutlineInputBorder(),
+                  ),
+                  items: const [
+                    DropdownMenuItem(value: 'SHIRT', child: Text('SHIRT')),
+                    DropdownMenuItem(value: 'PANTS', child: Text('PANTS')),
+                    DropdownMenuItem(value: 'HOODIE', child: Text('HOODIE')),
+                    DropdownMenuItem(value: 'DRESS', child: Text('DRESS')),
+                    DropdownMenuItem(value: 'JACKET', child: Text('JACKET')),
+                  ],
+                  onChanged: isLoading
+                      ? null
+                      : (value) {
+                          if (value != null) {
+                            _categoryController.text = value;
+                          }
+                        },
+                  validator: (value) => value == null ? 'Required' : null,
+                ),
+                const SizedBox(height: 32),
+
+                // --- Image Picker Section ---
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Product Images',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    TextButton.icon(
+                      onPressed: isLoading ? null : _pickImages,
+                      icon: const Icon(Icons.add_photo_alternate),
+                      label: const Text('Add Images'),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                if (_selectedImages.isNotEmpty)
+                  SizedBox(
+                    height: 120,
+                    child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: _selectedImages.length,
+                      itemBuilder: (context, index) {
+                        return Stack(
+                          children: [
+                            Container(
+                              margin: const EdgeInsets.only(right: 8, top: 8),
+                              width: 100,
+                              height: 100,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(8),
+                                image: DecorationImage(
+                                  image: FileImage(_selectedImages[index]),
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                            ),
+                            Positioned(
+                              top: 0,
+                              right: 0,
+                              child: GestureDetector(
+                                onTap: () => _removeImage(index),
+                                child: Container(
+                                  decoration: const BoxDecoration(
+                                    color: Colors.red,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  padding: const EdgeInsets.all(4),
+                                  child: const Icon(
+                                    Icons.close,
+                                    color: Colors.white,
+                                    size: 16,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    ),
+                  )
+                else
+                  Container(
+                    height: 100,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade200,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: Colors.grey.shade400,
+                        style: BorderStyle.solid,
+                      ),
+                    ),
+                    alignment: Alignment.center,
+                    child: const Text('No images selected (Max 5)'),
+                  ),
+                const SizedBox(height: 32),
+
+                // --- End Image Picker Section ---
+                const Text(
+                  'Variants',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 12),
+                ..._variants.asMap().entries.map((entry) {
+                  return _buildVariantItem(entry.key, entry.value, isLoading);
+                }),
+                ElevatedButton.icon(
+                  onPressed: isLoading ? null : _addVariant,
+                  icon: const Icon(Icons.add),
+                  label: const Text('Add Variant'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.grey.shade200,
+                    foregroundColor: Colors.black,
+                  ),
+                ),
+                const SizedBox(height: 40),
+                ElevatedButton(
+                  onPressed: isLoading ? null : _submitForm,
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                  ),
+                  child: isLoading
+                      ? const CircularProgressIndicator(color: Colors.white)
+                      : const Text(
+                          'Publish Product',
+                          style: TextStyle(fontSize: 16),
+                        ),
+                ),
+              ],
+            ),
+          );
+        },
       ),
     );
   }

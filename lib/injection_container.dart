@@ -21,6 +21,13 @@ import 'features/admin/data/repositories/admin_product_repository_impl.dart';
 import 'features/admin/domain/repositories/admin_product_repository.dart';
 import 'features/admin/domain/usecases/create_product_usecase.dart';
 import 'features/admin/presentation/bloc/add_product_bloc.dart';
+import 'features/product/data/datasources/product_remote_data_source.dart';
+import 'features/product/data/repositories/product_repository_impl.dart';
+import 'features/product/domain/repositories/product_repository.dart';
+import 'features/product/domain/usecases/get_product_details.dart';
+import 'features/product/domain/usecases/get_products.dart';
+import 'features/product/presentation/bloc/product_bloc.dart';
+import 'features/product/presentation/bloc/product_detail_bloc.dart';
 
 final sl = GetIt.instance;
 
@@ -76,7 +83,26 @@ Future<void> init() async {
 
   // Data sources
   sl.registerLazySingleton<AdminRemoteDataSource>(
-    () => AdminRemoteDataSourceImpl(client: sl()),
+    () => AdminRemoteDataSourceImpl(client: sl(), tokenProvider: sl()),
+  );
+
+  /// Features - Product
+  // Use cases
+  sl.registerLazySingleton(() => GetProductsUseCase(sl()));
+  sl.registerLazySingleton(() => GetProductDetailsUseCase(sl()));
+
+  // Bloc
+  sl.registerFactory(() => ProductBloc(getProductsUseCase: sl()));
+  sl.registerFactory(() => ProductDetailBloc(getProductDetailsUseCase: sl()));
+
+  // Repository
+  sl.registerLazySingleton<ProductRepository>(
+    () => ProductRepositoryImpl(remoteDataSource: sl()),
+  );
+
+  // Data sources
+  sl.registerLazySingleton<ProductRemoteDataSource>(
+    () => ProductRemoteDataSourceImpl(client: sl()),
   );
 
   // Ánh xạ AuthLocalDataSource thành TokenProvider cho GraphQLClient

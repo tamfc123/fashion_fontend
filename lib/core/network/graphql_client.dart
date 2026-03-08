@@ -8,7 +8,9 @@ class GraphQLConfig {
     final HttpLink httpLink = HttpLink(
       endpoint,
       defaultHeaders: {
-        'ngrok-skip-browser-warning': 'true', // Dòng này cực kỳ quan trọng
+        'ngrok-skip-browser-warning': 'true',
+        'apollo-require-preflight':
+            'true', // Fixes Apollo Server 4 CSRF lockup on multipart
       },
     );
     final AuthLink authLink = AuthLink(
@@ -17,6 +19,7 @@ class GraphQLConfig {
         return token != null ? 'Bearer $token' : null;
       },
     );
+
     final Link link = authLink.concat(httpLink);
 
     return GraphQLClient(cache: GraphQLCache(), link: link);

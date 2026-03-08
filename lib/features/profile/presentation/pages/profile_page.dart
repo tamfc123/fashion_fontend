@@ -5,6 +5,8 @@ import '../../../admin/presentation/pages/add_product_page.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../auth/presentation/bloc/auth_event.dart';
 import '../../../auth/presentation/bloc/auth_state.dart';
+import '../../../../injection_container.dart' as di;
+import '../../../admin/presentation/bloc/add_product_bloc.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
@@ -173,7 +175,11 @@ class ProfilePage extends StatelessWidget {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => const AddProductPage(),
+                                builder: (context) =>
+                                    BlocProvider<AddProductBloc>(
+                                      create: (_) => di.sl<AddProductBloc>(),
+                                      child: const AddProductPage(),
+                                    ),
                               ),
                             );
                           },
