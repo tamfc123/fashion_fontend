@@ -6,8 +6,8 @@ import '../../../../injection_container.dart';
 import '../bloc/product_detail_bloc.dart';
 import '../bloc/product_detail_event.dart';
 import '../bloc/product_detail_state.dart';
+import '../widgets/add_to_cart_bottom_sheet.dart';
 import '../widgets/product_image_carousel.dart';
-import '../widgets/variant_selector.dart';
 
 class ProductDetailPage extends StatelessWidget {
   final Object
@@ -97,8 +97,6 @@ class _ProductDetailPageView extends StatelessWidget {
 
             // Resolve dynamic price and stock
             final price = variant?.price ?? 0.0;
-            final stock = variant?.stock ?? 0;
-            final inStock = stock > 0;
 
             return Stack(
               children: [
@@ -147,18 +145,6 @@ class _ProductDetailPageView extends StatelessWidget {
                                 color: Colors.black,
                               ),
                             ),
-                            const SizedBox(height: 32),
-
-                            // Variant Selection
-                            VariantSelector(
-                              variants: product.variants,
-                              selectedVariant: variant,
-                              onVariantSelected: (v) {
-                                context.read<ProductDetailBloc>().add(
-                                  SelectVariantEvent(variant: v),
-                                );
-                              },
-                            ),
 
                             const SizedBox(height: 32),
 
@@ -194,35 +180,56 @@ class _ProductDetailPageView extends StatelessWidget {
                   left: 0,
                   right: 0,
                   child: Container(
+                    // Removed double.infinity
                     padding: EdgeInsets.only(
                       left: 24,
                       right: 24,
                       top: 16,
-                      bottom: MediaQuery.of(context).padding.bottom + 16,
+                      bottom:
+                          MediaQuery.of(context).padding.bottom +
+                          16, // Breathing room below
                     ),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       border: Border(top: BorderSide(color: Colors.grey[200]!)),
                     ),
-                    child: ElevatedButton(
-                      onPressed: inStock ? () {} : null,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.black,
-                        disabledBackgroundColor: Colors.grey[300],
-                        padding: const EdgeInsets.symmetric(vertical: 20),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(
-                            0,
-                          ), // Brutalist sharp corners
+                    child: SizedBox(
+                      width: double
+                          .infinity, // Let button expand within padded container
+                      child: ElevatedButton(
+                        onPressed: () {
+                          // Get the bloc instance from current context to pass down
+                          final bloc = context.read<ProductDetailBloc>();
+                          showModalBottomSheet(
+                            context: context,
+                            isScrollControlled: true,
+                            backgroundColor: Colors.transparent,
+                            builder: (context) {
+                              return AddToCartBottomSheet(
+                                product: product,
+                                bloc: bloc,
+                              );
+                            },
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.black,
+                          disabledBackgroundColor: Colors.grey[300],
+                          padding: const EdgeInsets.symmetric(vertical: 20),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(
+                              12,
+                            ), // Pill shape
+                          ),
                         ),
-                      ),
-                      child: Text(
-                        inStock ? 'ADD TO CART' : 'OUT OF STOCK',
-                        style: TextStyle(
-                          color: inStock ? Colors.white : Colors.grey[600],
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 2,
+                        child: const Text(
+                          'CHỌN LOẠI HÀNG', // Rephrased correctly since logic moved to BottomSheet
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 2,
+                          ),
                         ),
                       ),
                     ),

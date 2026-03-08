@@ -25,12 +25,26 @@ class VariantSelector extends StatelessWidget {
       children: [
         // COLOR SELECTOR
         if (uniqueColors.isNotEmpty && uniqueColors.first != '') ...[
-          const Text(
-            'COLOR',
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 1.2,
+          RichText(
+            text: TextSpan(
+              text: 'COLOR',
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 1.2,
+                color: Colors.black,
+              ),
+              children: [
+                if (selectedVariant?.color != null)
+                  TextSpan(
+                    text: ' : ${selectedVariant!.color}',
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.normal,
+                      color: Colors.black87,
+                    ),
+                  ),
+              ],
             ),
           ),
           const SizedBox(height: 12),
@@ -39,31 +53,45 @@ class VariantSelector extends StatelessWidget {
             runSpacing: 12,
             children: uniqueColors.map((color) {
               final isSelected = selectedVariant?.color == color;
-              // Map color name to actual color if possible, fallback to black border
-              Color circleColor = Colors.grey[300]!;
-              if (color.toLowerCase() == 'black') circleColor = Colors.black;
-              if (color.toLowerCase() == 'white') circleColor = Colors.white;
-              if (color.toLowerCase() == 'red') circleColor = Colors.red;
-              if (color.toLowerCase() == 'blue') circleColor = Colors.blue;
 
               return GestureDetector(
                 onTap: () {
                   // Find a variant that matches the new color and the *current* size (if possible)
-                  final matchedVariant = variants.firstWhere(
-                    (v) => v.color == color && v.size == selectedVariant?.size,
-                    orElse: () => variants.firstWhere((v) => v.color == color),
-                  );
+                  final matchedVariant = variants
+                      .cast<ProductVariantEntity>()
+                      .firstWhere(
+                        (v) =>
+                            v.color == color && v.size == selectedVariant?.size,
+                        orElse: () => variants
+                            .cast<ProductVariantEntity>()
+                            .firstWhere((v) => v.color == color),
+                      );
                   onVariantSelected(matchedVariant);
                 },
                 child: Container(
-                  width: 36,
-                  height: 36,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 12,
+                  ),
                   decoration: BoxDecoration(
-                    color: circleColor,
-                    shape: BoxShape.circle,
+                    color: isSelected ? Colors.black : Colors.white,
                     border: Border.all(
                       color: isSelected ? Colors.black : Colors.grey[300]!,
-                      width: isSelected ? 3 : 1,
+                      width: isSelected
+                          ? 2
+                          : 1, // Slightly bolder border for selected
+                    ),
+                    borderRadius: BorderRadius.circular(
+                      8,
+                    ), // Add subtle rounding
+                  ),
+                  child: Text(
+                    color,
+                    style: TextStyle(
+                      color: isSelected ? Colors.white : Colors.black87,
+                      fontWeight: isSelected
+                          ? FontWeight.bold
+                          : FontWeight.w500,
                     ),
                   ),
                 ),
@@ -75,12 +103,26 @@ class VariantSelector extends StatelessWidget {
 
         // SIZE SELECTOR
         if (uniqueSizes.isNotEmpty && uniqueSizes.first != '') ...[
-          const Text(
-            'SIZE',
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 1.2,
+          RichText(
+            text: TextSpan(
+              text: 'SIZE',
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 1.2,
+                color: Colors.black,
+              ),
+              children: [
+                if (selectedVariant?.size != null)
+                  TextSpan(
+                    text: ' : ${selectedVariant!.size}',
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.normal,
+                      color: Colors.black87,
+                    ),
+                  ),
+              ],
             ),
           ),
           const SizedBox(height: 12),
@@ -112,14 +154,20 @@ class VariantSelector extends StatelessWidget {
                         ? Colors.black
                         : (isValidCombination
                               ? Colors.white
-                              : Colors.grey[100]),
+                              : Colors.grey[200]), // Darker grey for disabled
                     border: Border.all(
                       color: isSelected
                           ? Colors.black
                           : (isValidCombination
-                                ? Colors.grey[400]!
+                                ? Colors.grey[300]!
                                 : Colors.grey[200]!),
+                      width: isSelected
+                          ? 2
+                          : 1, // Match color selector thickness
                     ),
+                    borderRadius: BorderRadius.circular(
+                      8,
+                    ), // Match color selector radius
                   ),
                   child: Text(
                     size,
@@ -127,9 +175,15 @@ class VariantSelector extends StatelessWidget {
                       color: isSelected
                           ? Colors.white
                           : (isValidCombination
-                                ? Colors.black
-                                : Colors.grey[400]),
-                      fontWeight: FontWeight.bold,
+                                ? Colors.black87
+                                : Colors.grey[500]), // Muted text for disabled
+                      fontWeight: isSelected
+                          ? FontWeight.bold
+                          : FontWeight.w500,
+                      decoration: isValidCombination
+                          ? null
+                          : TextDecoration
+                                .lineThrough, // Strikethrough for disabled
                     ),
                   ),
                 ),
