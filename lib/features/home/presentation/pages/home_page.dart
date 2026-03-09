@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../auth/presentation/bloc/auth_bloc.dart';
-
 import '../../../auth/presentation/bloc/auth_state.dart';
 import '../../../auth/presentation/pages/login_page.dart';
+import '../../../cart/presentation/bloc/cart_bloc.dart';
+import '../../../cart/presentation/bloc/cart_event.dart';
 import '../../../product/presentation/bloc/product_bloc.dart';
 import '../../../product/presentation/bloc/product_event.dart';
 import '../../../product/presentation/bloc/product_state.dart';
@@ -27,11 +28,30 @@ class _HomePageState extends State<HomePage> {
   int _currentIndex = 0;
   String? _selectedCategory;
 
+  String _getCategoryName(String category) {
+    switch (category.toUpperCase()) {
+      case 'SHIRT':
+        return 'ÁO';
+      case 'PANTS':
+        return 'QUẦN';
+      case 'HOODIE':
+        return 'HOODIE';
+      case 'DRESS':
+        return 'VÁY';
+      case 'JACKET':
+        return 'ÁO KHOÁC';
+      default:
+        return category.toUpperCase();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
         if (state is AuthUnauthenticated) {
+          // Clear the cart state and SharedPreferences on logout
+          context.read<CartBloc>().add(const ClearCartEvent());
           Navigator.of(context).pushAndRemoveUntil(
             MaterialPageRoute(builder: (_) => const LoginPage()),
             (route) => false,
@@ -63,19 +83,19 @@ class _HomePageState extends State<HomePage> {
                 items: const [
                   BottomNavigationBarItem(
                     icon: Icon(Icons.home),
-                    label: 'Home',
+                    label: 'Trang Chủ',
                   ),
                   BottomNavigationBarItem(
                     icon: Icon(Icons.search),
-                    label: 'Search',
+                    label: 'Tìm Kiếm',
                   ),
                   BottomNavigationBarItem(
                     icon: Icon(Icons.shopping_cart),
-                    label: 'Cart',
+                    label: 'Giỏ Hàng',
                   ),
                   BottomNavigationBarItem(
                     icon: Icon(Icons.person),
-                    label: 'Profile',
+                    label: 'Cá Nhân',
                   ),
                 ],
               ),
@@ -134,7 +154,7 @@ class _HomePageState extends State<HomePage> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             const Text(
-                              'CATEGORIES',
+                              'DANH MỤC',
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
@@ -170,8 +190,8 @@ class _HomePageState extends State<HomePage> {
                         padding: const EdgeInsets.symmetric(horizontal: 16.0),
                         child: Text(
                           _selectedCategory == null
-                              ? 'NEW ARRIVALS'
-                              : '$_selectedCategory COLLECTION',
+                              ? 'BỘ SƯU TẬP MỚI'
+                              : 'BỘ SƯU TẬP ${_getCategoryName(_selectedCategory!)}',
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
@@ -205,7 +225,7 @@ class _HomePageState extends State<HomePage> {
                             return const SliverFillRemaining(
                               child: Center(
                                 child: Text(
-                                  'NO PRODUCTS FOUND.',
+                                  'KHÔNG TÌM THẤY SẢN PHẨM NÀO.',
                                   style: TextStyle(
                                     fontWeight: FontWeight.bold,
                                     letterSpacing: 2,
@@ -264,9 +284,9 @@ class _HomePageState extends State<HomePage> {
   // --- TAB 2: SEARCH ---
   Widget _buildSearchTab() {
     return Scaffold(
-      appBar: AppBar(title: const Text('Search')),
+      appBar: AppBar(title: const Text('Tìm Kiếm')),
       body: const Center(
-        child: Chip(label: Text('Tính năng Tìm Kiếm đang phát triển 🚧')),
+        child: Chip(label: Text('Hệ thống đang cập nhật dữ liệu... 🚧')),
       ),
     );
   }

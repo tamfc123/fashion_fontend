@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fashion_ecommerce_app/core/utils/usecase.dart';
+import '../../data/datasources/cart_local_data_source.dart';
 import '../../domain/usecases/add_to_cart_usecase.dart';
 import '../../domain/usecases/get_cart_items_usecase.dart';
 import '../../domain/usecases/update_cart_item_usecase.dart';
@@ -12,17 +13,20 @@ class CartBloc extends Bloc<CartEvent, CartState> {
   final GetCartItemsUseCase getCartItemsUseCase;
   final UpdateCartItemUseCase updateCartItemUseCase;
   final RemoveFromCartUseCase removeFromCartUseCase;
+  final CartLocalDataSource cartLocalDataSource;
 
   CartBloc({
     required this.addToCartUseCase,
     required this.getCartItemsUseCase,
     required this.updateCartItemUseCase,
     required this.removeFromCartUseCase,
+    required this.cartLocalDataSource,
   }) : super(const CartInitial()) {
     on<AddToCartEvent>(_onAddToCart);
     on<GetCartEvent>(_onGetCart);
     on<UpdateCartItemQuantityEvent>(_onUpdateQuantity);
     on<RemoveCartItemEvent>(_onRemoveItem);
+    on<ClearCartEvent>(_onClearCart);
   }
 
   Future<void> _onAddToCart(
@@ -113,5 +117,13 @@ class CartBloc extends Bloc<CartEvent, CartState> {
       ),
       (_) => add(const GetCartEvent()),
     );
+  }
+
+  Future<void> _onClearCart(
+    ClearCartEvent event,
+    Emitter<CartState> emit,
+  ) async {
+    await cartLocalDataSource.clearCart();
+    emit(const CartInitial());
   }
 }

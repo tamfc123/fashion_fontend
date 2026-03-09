@@ -14,234 +14,594 @@ class ProfilePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Profile')),
+      backgroundColor: const Color(0xFFF5F5F5),
       body: BlocBuilder<AuthBloc, AuthState>(
         builder: (context, state) {
           if (state is AuthAuthenticated) {
             final user = state.user;
             final isAdmin = user.role == 'ADMIN';
 
-            return ListView(
-              padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
-              children: [
-                // --- 1. HEADER (Cá nhân) ---
-                Center(
-                  child: Stack(
-                    alignment: Alignment.bottomRight,
-                    children: [
-                      const CircleAvatar(
-                        radius: 50,
-                        backgroundColor: Colors.grey,
-                        child: Icon(
-                          Icons.person,
-                          size: 50,
-                          color: Colors.white,
-                        ),
-                      ),
-                      if (isAdmin)
-                        Container(
-                          padding: const EdgeInsets.all(4),
-                          decoration: const BoxDecoration(
-                            color: Colors.orange,
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(
-                            Icons.verified,
-                            color: Colors.white,
-                            size: 20,
-                          ),
-                        ),
-                    ],
+            return CustomScrollView(
+              slivers: [
+                // ─── HERO HEADER ───────────────────────────────────────────
+                SliverToBoxAdapter(
+                  child: _HeroHeader(
+                    name: user.name,
+                    email: user.email,
+                    isAdmin: isAdmin,
                   ),
                 ),
-                const SizedBox(height: 16),
-                Center(
-                  child: Text(
-                    user.name,
-                    style: const TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Center(
-                  child: Text(
-                    user.email,
-                    style: TextStyle(fontSize: 16, color: Colors.grey.shade600),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Center(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: isAdmin
-                          ? Colors.orange.shade100
-                          : Colors.blue.shade100,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      user.role,
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                        color: isAdmin
-                            ? Colors.orange.shade800
-                            : Colors.blue.shade800,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 32),
 
-                // --- 2. GENERAL OPTIONS (Menu Chung) ---
-                const Text(
-                  'General',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.grey,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Card(
-                  elevation: 0,
-                  color: Colors.grey.shade50,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Column(
-                    children: [
-                      ListTile(
-                        leading: const Icon(Icons.shopping_bag_outlined),
-                        title: const Text('My Orders'),
-                        trailing: const Icon(Icons.chevron_right),
-                        onTap: () {
-                          // TODO: Navigate to Orders
-                        },
+                // ─── STATS ROW ─────────────────────────────────────────────
+                SliverToBoxAdapter(child: _StatsRow()),
+
+                // ─── GENERAL MENU ──────────────────────────────────────────
+                SliverToBoxAdapter(
+                  child: _MenuSection(
+                    title: 'TÙY CHỌN CHUNG',
+                    tiles: [
+                      _MenuItemData(
+                        icon: Icons.shopping_bag_outlined,
+                        title: 'Lịch sử đơn hàng',
+                        subtitle: 'Xem các đơn hàng đã đặt',
+                        onTap: () {},
                       ),
-                      const Divider(height: 1),
-                      ListTile(
-                        leading: const Icon(Icons.settings_outlined),
-                        title: const Text('Settings'),
-                        trailing: const Icon(Icons.chevron_right),
-                        onTap: () {
-                          // TODO: Navigate to Settings
-                        },
+                      _MenuItemData(
+                        icon: Icons.favorite_border_rounded,
+                        title: 'Yêu thích',
+                        subtitle: 'Sản phẩm bạn đã thích',
+                        onTap: () {},
+                      ),
+                      _MenuItemData(
+                        icon: Icons.location_on_outlined,
+                        title: 'Địa chỉ giao hàng',
+                        subtitle: 'Quản lý địa chỉ nhận hàng',
+                        onTap: () {},
+                      ),
+                      _MenuItemData(
+                        icon: Icons.settings_outlined,
+                        title: 'Cài đặt tài khoản',
+                        subtitle: 'Bảo mật & thông báo',
+                        onTap: () {},
                       ),
                     ],
                   ),
                 ),
-                const SizedBox(height: 24),
 
-                // --- 3. ADMIN TOOLS (Vùng Quyền Lực) ---
-                if (isAdmin) ...[
-                  const Text(
-                    'Admin Tools',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.orange,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Card(
-                    elevation: 0,
-                    color: Colors.orange.shade50,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      side: BorderSide(color: Colors.orange.shade200),
-                    ),
-                    child: Column(
-                      children: [
-                        ListTile(
-                          leading: const Icon(
-                            Icons.add_box,
-                            color: Colors.orange,
-                          ),
-                          title: const Text(
-                            'Add New Product',
-                            style: TextStyle(fontWeight: FontWeight.w500),
-                          ),
-                          trailing: const Icon(
-                            Icons.chevron_right,
-                            color: Colors.orange,
-                          ),
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    BlocProvider<AddProductBloc>(
-                                      create: (_) => di.sl<AddProductBloc>(),
-                                      child: const AddProductPage(),
-                                    ),
-                              ),
-                            );
-                          },
-                        ),
-                        const Divider(height: 1, color: Colors.orangeAccent),
-                        ListTile(
-                          leading: const Icon(
-                            Icons.dashboard,
-                            color: Colors.orange,
-                          ),
-                          title: const Text(
-                            'Manage Store',
-                            style: TextStyle(fontWeight: FontWeight.w500),
-                          ),
-                          trailing: const Icon(
-                            Icons.chevron_right,
-                            color: Colors.orange,
-                          ),
-                          onTap: () {
-                            // TODO: Manage Store Dashboard
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 32),
-                ],
+                // ─── ADMIN ZONE ────────────────────────────────────────────
+                if (isAdmin)
+                  SliverToBoxAdapter(child: _AdminZone(context: context)),
 
-                // --- 4. LOGOUT BUTTON ---
-                const SizedBox(height: 16),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton.icon(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.red.shade50,
-                      foregroundColor: Colors.red,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      elevation: 0,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                // ─── LOGOUT ────────────────────────────────────────────────
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 8, 20, 48),
+                    child: TextButton.icon(
+                      style: TextButton.styleFrom(
+                        foregroundColor: Colors.black54,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
                       ),
-                    ),
-                    onPressed: () {
-                      context.read<AuthBloc>().add(LogoutEvent());
-                    },
-                    icon: const Icon(Icons.logout),
-                    label: const Text(
-                      'Log Out',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
+                      onPressed: () {
+                        context.read<AuthBloc>().add(LogoutEvent());
+                      },
+                      icon: const Icon(Icons.logout, size: 18),
+                      label: const Text(
+                        'ĐĂNG XUẤT HỆ THỐNG',
+                        style: TextStyle(
+                          letterSpacing: 1.5,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 13,
+                        ),
                       ),
                     ),
                   ),
                 ),
-                const SizedBox(height: 40),
               ],
             );
           }
-          return const Center(child: CircularProgressIndicator());
+
+          return const Center(
+            child: CircularProgressIndicator(color: Colors.black),
+          );
         },
       ),
     );
   }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// HERO HEADER
+// ─────────────────────────────────────────────────────────────────────────────
+class _HeroHeader extends StatelessWidget {
+  final String name;
+  final String email;
+  final bool isAdmin;
+
+  const _HeroHeader({
+    required this.name,
+    required this.email,
+    required this.isAdmin,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      decoration: const BoxDecoration(
+        color: Colors.black,
+        borderRadius: BorderRadius.only(
+          bottomLeft: Radius.circular(32),
+          bottomRight: Radius.circular(32),
+        ),
+      ),
+      padding: EdgeInsets.only(
+        top: MediaQuery.of(context).padding.top + 16,
+        bottom: 40,
+        left: 24,
+        right: 24,
+      ),
+      child: Column(
+        children: [
+          // App bar row
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'HỒ SƠ CÁ NHÂN',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 2,
+                  fontSize: 13,
+                ),
+              ),
+              IconButton(
+                icon: const Icon(
+                  Icons.edit_outlined,
+                  color: Colors.white54,
+                  size: 20,
+                ),
+                onPressed: () {},
+              ),
+            ],
+          ),
+          const SizedBox(height: 24),
+          // Avatar
+          Container(
+            width: 88,
+            height: 88,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.white,
+              border: Border.all(color: Colors.white, width: 2),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.white.withValues(alpha: 0.15),
+                  blurRadius: 20,
+                  spreadRadius: 4,
+                ),
+              ],
+            ),
+            child: Center(
+              child: Text(
+                name.isNotEmpty ? name[0].toUpperCase() : '?',
+                style: const TextStyle(
+                  fontSize: 36,
+                  fontWeight: FontWeight.w900,
+                  color: Colors.black,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            name.toUpperCase(),
+            style: const TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w900,
+              letterSpacing: 2.5,
+              color: Colors.white,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            email,
+            style: const TextStyle(
+              fontSize: 13,
+              color: Colors.white54,
+              letterSpacing: 0.3,
+            ),
+          ),
+          const SizedBox(height: 16),
+          // Role badge
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: isAdmin
+                    ? Colors.amber.shade400
+                    : Colors.white.withValues(alpha: 0.3),
+              ),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  isAdmin ? Icons.diamond_outlined : Icons.person_outline,
+                  size: 12,
+                  color: isAdmin ? Colors.amber.shade400 : Colors.white54,
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  isAdmin ? 'QUẢN TRỊ VIÊN' : 'THÀNH VIÊN',
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 2,
+                    color: isAdmin ? Colors.amber.shade400 : Colors.white54,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// STATS ROW
+// ─────────────────────────────────────────────────────────────────────────────
+class _StatsRow extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(20, 20, 20, 8),
+      padding: const EdgeInsets.symmetric(vertical: 20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.06),
+            blurRadius: 16,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          _buildStat('0', 'Đơn hàng'),
+          _buildVerticalDivider(),
+          _buildStat('0', 'Yêu thích'),
+          _buildVerticalDivider(),
+          _buildStat('0', 'Đánh giá'),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStat(String value, String label) {
+    return Expanded(
+      child: Column(
+        children: [
+          Text(
+            value,
+            style: const TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.w900,
+              color: Colors.black,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 11,
+              color: Colors.grey,
+              letterSpacing: 0.5,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildVerticalDivider() {
+    return Container(width: 1, height: 36, color: Colors.grey.shade200);
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MENU SECTION
+// ─────────────────────────────────────────────────────────────────────────────
+class _MenuItemData {
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final VoidCallback onTap;
+  const _MenuItemData({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+  });
+}
+
+class _MenuSection extends StatelessWidget {
+  final String title;
+  final List<_MenuItemData> tiles;
+  const _MenuSection({required this.title, required this.tiles});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 2,
+              color: Colors.grey,
+            ),
+          ),
+          const SizedBox(height: 10),
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.06),
+                  blurRadius: 16,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Column(
+              children: List.generate(tiles.length, (i) {
+                final tile = tiles[i];
+                return Column(
+                  children: [
+                    InkWell(
+                      borderRadius: BorderRadius.circular(16),
+                      onTap: tile.onTap,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 16,
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 40,
+                              height: 40,
+                              decoration: BoxDecoration(
+                                color: Colors.grey.shade100,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Icon(
+                                tile.icon,
+                                size: 20,
+                                color: Colors.black,
+                              ),
+                            ),
+                            const SizedBox(width: 14),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    tile.title,
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    tile.subtitle,
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.grey.shade500,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Icon(
+                              Icons.arrow_forward_ios,
+                              size: 13,
+                              color: Colors.grey.shade400,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    if (i < tiles.length - 1)
+                      Divider(
+                        height: 1,
+                        indent: 74,
+                        color: Colors.grey.shade100,
+                      ),
+                  ],
+                );
+              }),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ADMIN ZONE
+// ─────────────────────────────────────────────────────────────────────────────
+class _AdminZone extends StatelessWidget {
+  final BuildContext context;
+  const _AdminZone({required this.context});
+
+  @override
+  Widget build(BuildContext _) {
+    final adminTiles = [
+      _AdminTileData(
+        icon: Icons.add_box_outlined,
+        title: 'Thêm sản phẩm mới',
+        subtitle: 'Đăng sản phẩm lên cửa hàng',
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => BlocProvider<AddProductBloc>(
+                create: (_) => di.sl<AddProductBloc>(),
+                child: const AddProductPage(),
+              ),
+            ),
+          );
+        },
+      ),
+      _AdminTileData(
+        icon: Icons.dashboard_outlined,
+        title: 'Quản lý cửa hàng',
+        subtitle: 'Xem và chỉnh sửa sản phẩm',
+        onTap: () {},
+      ),
+      _AdminTileData(
+        icon: Icons.bar_chart_outlined,
+        title: 'Báo cáo doanh thu',
+        subtitle: 'Thống kê & phân tích bán hàng',
+        onTap: () {},
+      ),
+    ];
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Text(
+                'QUYỀN QUẢN TRỊ',
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 2,
+                  color: Colors.grey,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Icon(Icons.diamond, size: 12, color: Colors.amber.shade500),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.black,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.3),
+                  blurRadius: 20,
+                  offset: const Offset(0, 8),
+                ),
+              ],
+            ),
+            child: Column(
+              children: List.generate(adminTiles.length, (i) {
+                final tile = adminTiles[i];
+                return Column(
+                  children: [
+                    InkWell(
+                      borderRadius: BorderRadius.circular(16),
+                      onTap: tile.onTap,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 16,
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 40,
+                              height: 40,
+                              decoration: BoxDecoration(
+                                color: Colors.white.withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Icon(
+                                tile.icon,
+                                size: 20,
+                                color: Colors.white,
+                              ),
+                            ),
+                            const SizedBox(width: 14),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    tile.title,
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    tile.subtitle,
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.white54,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const Icon(
+                              Icons.arrow_forward_ios,
+                              size: 13,
+                              color: Colors.white38,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    if (i < adminTiles.length - 1)
+                      Divider(
+                        height: 1,
+                        indent: 74,
+                        color: Colors.white.withValues(alpha: 0.08),
+                      ),
+                  ],
+                );
+              }),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _AdminTileData {
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final VoidCallback onTap;
+  const _AdminTileData({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+  });
 }

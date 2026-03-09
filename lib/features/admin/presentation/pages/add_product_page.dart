@@ -56,7 +56,7 @@ class _AddProductPageState extends State<AddProductPage> {
 
     if (_selectedImages.length >= 5) {
       scaffoldMessenger.showSnackBar(
-        const SnackBar(content: Text('Maximum 5 images allowed.')),
+        const SnackBar(content: Text('Tối đa 5 ảnh được phép chọn.')),
       );
       return;
     }
@@ -77,7 +77,7 @@ class _AddProductPageState extends State<AddProductPage> {
       }
     } catch (e) {
       scaffoldMessenger.showSnackBar(
-        SnackBar(content: Text('Error picking images: $e')),
+        SnackBar(content: Text('Lỗi khi chọn ảnh: $e')),
       );
     }
   }
@@ -127,7 +127,7 @@ class _AddProductPageState extends State<AddProductPage> {
       });
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('At least one variant is required')),
+        const SnackBar(content: Text('Cần ít nhất 1 phân loại sản phẩm')),
       );
     }
   }
@@ -136,7 +136,7 @@ class _AddProductPageState extends State<AddProductPage> {
     if (_formKey.currentState!.validate()) {
       if (_variants.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Please add at least one variant.')),
+          const SnackBar(content: Text('Vui lòng thêm ít nhất một phân loại.')),
         );
         return;
       }
@@ -183,7 +183,7 @@ class _AddProductPageState extends State<AddProductPage> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Variant #${index + 1}',
+                  'Phân loại #${index + 1}',
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
                 IconButton(
@@ -197,7 +197,9 @@ class _AddProductPageState extends State<AddProductPage> {
                 Expanded(
                   child: TextFormField(
                     controller: variant.colorController,
-                    decoration: const InputDecoration(labelText: 'Color (opt)'),
+                    decoration: const InputDecoration(
+                      labelText: 'Màu sắc (tuỳ chọn)',
+                    ),
                     enabled: !isLoading,
                   ),
                 ),
@@ -207,7 +209,7 @@ class _AddProductPageState extends State<AddProductPage> {
                     initialValue: variant.sizeController.text.isEmpty
                         ? null
                         : variant.sizeController.text,
-                    decoration: const InputDecoration(labelText: 'Size *'),
+                    decoration: const InputDecoration(labelText: 'Kích cỡ *'),
                     items: const [
                       DropdownMenuItem(value: 'XS', child: Text('XS')),
                       DropdownMenuItem(value: 'S', child: Text('S')),
@@ -222,7 +224,8 @@ class _AddProductPageState extends State<AddProductPage> {
                               variant.sizeController.text = value;
                             }
                           },
-                    validator: (value) => value == null ? 'Required' : null,
+                    validator: (value) =>
+                        value == null ? 'Bắt buộc chọn' : null,
                   ),
                 ),
               ],
@@ -233,15 +236,15 @@ class _AddProductPageState extends State<AddProductPage> {
                 Expanded(
                   child: TextFormField(
                     controller: variant.priceController,
-                    decoration: const InputDecoration(labelText: 'Price *'),
+                    decoration: const InputDecoration(labelText: 'Giá bán *'),
                     keyboardType: TextInputType.number,
                     enabled: !isLoading,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Required';
+                        return 'Bắt buộc nhập';
                       }
                       if ((double.tryParse(value) ?? -1) < 0) {
-                        return 'Price >= 0';
+                        return 'Giá phải >= 0';
                       }
                       return null;
                     },
@@ -251,15 +254,15 @@ class _AddProductPageState extends State<AddProductPage> {
                 Expanded(
                   child: TextFormField(
                     controller: variant.stockController,
-                    decoration: const InputDecoration(labelText: 'Stock *'),
+                    decoration: const InputDecoration(labelText: 'Tồn kho *'),
                     keyboardType: TextInputType.number,
                     enabled: !isLoading,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Required';
+                        return 'Bắt buộc nhập';
                       }
                       if ((int.tryParse(value) ?? -1) < 0) {
-                        return 'Stock >= 0';
+                        return 'Tồn kho >= 0';
                       }
                       return null;
                     },
@@ -276,12 +279,12 @@ class _AddProductPageState extends State<AddProductPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Add Product (Admin)')),
+      appBar: AppBar(title: const Text('Thêm Sản Phẩm Mới')),
       body: BlocConsumer<AddProductBloc, AddProductState>(
         listener: (context, state) {
           if (state is AddProductSuccess) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Product added successfully!')),
+              const SnackBar(content: Text('Thêm sản phẩm thành công! 🎉')),
             );
             Navigator.of(context).pop();
           } else if (state is AddProductError) {
@@ -303,31 +306,31 @@ class _AddProductPageState extends State<AddProductPage> {
               padding: const EdgeInsets.all(16.0),
               children: [
                 const Text(
-                  'Basic Information',
+                  'THÔNG TIN CƠ BẢN',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 12),
                 TextFormField(
                   controller: _nameController,
                   decoration: const InputDecoration(
-                    labelText: 'Product Name',
+                    labelText: 'Tên sản phẩm',
                     border: OutlineInputBorder(),
                   ),
                   enabled: !isLoading,
                   validator: (value) =>
-                      (value == null || value.isEmpty) ? 'Required' : null,
+                      (value == null || value.isEmpty) ? 'Bắt buộc nhập' : null,
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _descController,
                   decoration: const InputDecoration(
-                    labelText: 'Description',
+                    labelText: 'Mô tả sản phẩm',
                     border: OutlineInputBorder(),
                   ),
                   maxLines: 3,
                   enabled: !isLoading,
                   validator: (value) =>
-                      (value == null || value.isEmpty) ? 'Required' : null,
+                      (value == null || value.isEmpty) ? 'Bắt buộc nhập' : null,
                 ),
                 const SizedBox(height: 16),
                 DropdownButtonFormField<String>(
@@ -335,15 +338,27 @@ class _AddProductPageState extends State<AddProductPage> {
                       ? null
                       : _categoryController.text,
                   decoration: const InputDecoration(
-                    labelText: 'Category',
+                    labelText: 'Danh mục',
                     border: OutlineInputBorder(),
                   ),
                   items: const [
-                    DropdownMenuItem(value: 'SHIRT', child: Text('SHIRT')),
-                    DropdownMenuItem(value: 'PANTS', child: Text('PANTS')),
-                    DropdownMenuItem(value: 'HOODIE', child: Text('HOODIE')),
-                    DropdownMenuItem(value: 'DRESS', child: Text('DRESS')),
-                    DropdownMenuItem(value: 'JACKET', child: Text('JACKET')),
+                    DropdownMenuItem(value: 'SHIRT', child: Text('Áo (SHIRT)')),
+                    DropdownMenuItem(
+                      value: 'PANTS',
+                      child: Text('Quần (PANTS)'),
+                    ),
+                    DropdownMenuItem(
+                      value: 'HOODIE',
+                      child: Text('Hoodie (HOODIE)'),
+                    ),
+                    DropdownMenuItem(
+                      value: 'DRESS',
+                      child: Text('Váy (DRESS)'),
+                    ),
+                    DropdownMenuItem(
+                      value: 'JACKET',
+                      child: Text('Áo khoác (JACKET)'),
+                    ),
                   ],
                   onChanged: isLoading
                       ? null
@@ -352,7 +367,7 @@ class _AddProductPageState extends State<AddProductPage> {
                             _categoryController.text = value;
                           }
                         },
-                  validator: (value) => value == null ? 'Required' : null,
+                  validator: (value) => value == null ? 'Bắt buộc chọn' : null,
                 ),
                 const SizedBox(height: 32),
 
@@ -361,7 +376,7 @@ class _AddProductPageState extends State<AddProductPage> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     const Text(
-                      'Product Images',
+                      'HÌNH ẢNH SẢN PHẨM',
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -370,7 +385,7 @@ class _AddProductPageState extends State<AddProductPage> {
                     TextButton.icon(
                       onPressed: isLoading ? null : _pickImages,
                       icon: const Icon(Icons.add_photo_alternate),
-                      label: const Text('Add Images'),
+                      label: const Text('Thêm ảnh'),
                     ),
                   ],
                 ),
@@ -433,13 +448,13 @@ class _AddProductPageState extends State<AddProductPage> {
                       ),
                     ),
                     alignment: Alignment.center,
-                    child: const Text('No images selected (Max 5)'),
+                    child: const Text('Chưa chọn ảnh (Tối đa 5)'),
                   ),
                 const SizedBox(height: 32),
 
                 // --- End Image Picker Section ---
                 const Text(
-                  'Variants',
+                  'PHÂN LOẠI SẢN PHẨM',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 12),
@@ -449,7 +464,7 @@ class _AddProductPageState extends State<AddProductPage> {
                 ElevatedButton.icon(
                   onPressed: isLoading ? null : _addVariant,
                   icon: const Icon(Icons.add),
-                  label: const Text('Add Variant'),
+                  label: const Text('+ Thêm phân loại'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.grey.shade200,
                     foregroundColor: Colors.black,
@@ -464,7 +479,7 @@ class _AddProductPageState extends State<AddProductPage> {
                   child: isLoading
                       ? const CircularProgressIndicator(color: Colors.white)
                       : const Text(
-                          'Publish Product',
+                          'ĐĂNG SẢN PHẨM',
                           style: TextStyle(fontSize: 16),
                         ),
                 ),

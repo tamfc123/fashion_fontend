@@ -128,6 +128,7 @@ Future<void> init() async {
       getCartItemsUseCase: sl(),
       updateCartItemUseCase: sl(),
       removeFromCartUseCase: sl(),
+      cartLocalDataSource: sl(),
     ),
   );
 

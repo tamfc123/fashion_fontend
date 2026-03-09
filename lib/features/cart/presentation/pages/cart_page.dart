@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../bloc/cart_bloc.dart';
 import '../bloc/cart_event.dart';
 import '../bloc/cart_state.dart';
+import '../../../address/presentation/pages/address_page.dart';
 
 class CartPage extends StatefulWidget {
   final bool isTab;
@@ -165,8 +166,22 @@ class _CartPageState extends State<CartPage> {
               width: double.infinity,
               height: 55,
               child: ElevatedButton(
-                onPressed: () {
-                  // Implement Checkout
+                onPressed: () async {
+                  final scaffoldMessenger = ScaffoldMessenger.of(context);
+                  final navigator = Navigator.of(context);
+                  final address = await navigator.push(
+                    MaterialPageRoute(builder: (_) => const AddressPage()),
+                  );
+                  if (address != null) {
+                    // TODO: Navigate to CheckoutConfirmPage with address
+                    scaffoldMessenger.showSnackBar(
+                      SnackBar(
+                        content: Text('Địa chỉ: ${address.shippingAddress}'),
+                        backgroundColor: Colors.black,
+                        behavior: SnackBarBehavior.floating,
+                      ),
+                    );
+                  }
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.black,

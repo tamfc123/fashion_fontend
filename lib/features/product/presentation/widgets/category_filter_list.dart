@@ -19,6 +19,25 @@ class CategoryFilterList extends StatelessWidget {
     'JACKET',
   ];
 
+  String _getCategoryName(String category) {
+    switch (category) {
+      case 'ALL':
+        return 'TẤT CẢ';
+      case 'SHIRT':
+        return 'ÁO';
+      case 'PANTS':
+        return 'QUẦN';
+      case 'HOODIE':
+        return 'HOODIE';
+      case 'DRESS':
+        return 'VÁY';
+      case 'JACKET':
+        return 'ÁO KHOÁC';
+      default:
+        return category;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return SizedBox(
@@ -51,7 +70,7 @@ class CategoryFilterList extends StatelessWidget {
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Text(
-                category,
+                _getCategoryName(category),
                 style: TextStyle(
                   color: isSelected ? Colors.white : Colors.black,
                   fontWeight: FontWeight.bold,
