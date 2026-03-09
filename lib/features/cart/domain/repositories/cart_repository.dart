@@ -8,12 +8,14 @@ abstract class CartRepository {
   Future<Either<Failure, List<CartItemEntity>>> getCartItems();
   Future<Either<Failure, void>> updateCartItem({
     required String productId,
+    required String variantId,
     required String size,
     required String color,
     required int quantity,
   });
   Future<Either<Failure, void>> removeFromCart({
     required String productId,
+    required String variantId,
     required String size,
     required String color,
   });

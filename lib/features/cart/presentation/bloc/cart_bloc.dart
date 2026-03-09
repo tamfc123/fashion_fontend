@@ -75,6 +75,7 @@ class CartBloc extends Bloc<CartEvent, CartState> {
     final result = await updateCartItemUseCase(
       UpdateCartItemParams(
         productId: event.productId,
+        variantId: event.variantId,
         size: event.size,
         color: event.color,
         quantity: event.quantity,
@@ -102,6 +103,7 @@ class CartBloc extends Bloc<CartEvent, CartState> {
     final result = await removeFromCartUseCase(
       RemoveFromCartParams(
         productId: event.productId,
+        variantId: event.variantId,
         size: event.size,
         color: event.color,
       ),

@@ -13,6 +13,7 @@ class RemoveFromCartUseCase implements UseCase<void, RemoveFromCartParams> {
   Future<Either<Failure, void>> call(RemoveFromCartParams params) async {
     return await repository.removeFromCart(
       productId: params.productId,
+      variantId: params.variantId,
       size: params.size,
       color: params.color,
     );
@@ -21,11 +22,13 @@ class RemoveFromCartUseCase implements UseCase<void, RemoveFromCartParams> {
 
 class RemoveFromCartParams {
   final String productId;
+  final String variantId;
   final String size;
   final String color;
 
   RemoveFromCartParams({
     required this.productId,
+    required this.variantId,
     required this.size,
     required this.color,
   });

@@ -7,11 +7,17 @@ abstract class CartRemoteDataSource {
   Future<List<CartItemModel>> getCart();
   Future<void> updateCartItem(
     String productId,
+    String variantId,
     String size,
     String color,
     int quantity,
   );
-  Future<void> removeFromCart(String productId, String size, String color);
+  Future<void> removeFromCart(
+    String productId,
+    String variantId,
+    String size,
+    String color,
+  );
 }
 
 class CartRemoteDataSourceImpl implements CartRemoteDataSource {
@@ -22,18 +28,9 @@ class CartRemoteDataSourceImpl implements CartRemoteDataSource {
   @override
   Future<void> addToCart(CartItemModel item) async {
     const String mutation = r'''
-      mutation AddToCart($productId: ID!, $quantity: Int!, $size: String!, $color: String!) {
-        addToCart(productId: $productId, quantity: $quantity, size: $size, color: $color) {
+      mutation AddToCart($input: AddToCartInput!) {
+        addToCart(input: $input) {
           id
-          items {
-            product {
-              id
-              name
-            }
-            quantity
-            size
-            color
-          }
         }
       }
     ''';
@@ -41,10 +38,11 @@ class CartRemoteDataSourceImpl implements CartRemoteDataSource {
     final MutationOptions options = MutationOptions(
       document: gql(mutation),
       variables: {
-        'productId': item.productId,
-        'quantity': item.quantity,
-        'size': item.size,
-        'color': item.color,
+        'input': {
+          'productId': item.productId,
+          'variantId': item.variantId,
+          'quantity': item.quantity,
+        },
       },
     );
 
@@ -64,16 +62,22 @@ class CartRemoteDataSourceImpl implements CartRemoteDataSource {
     const String query = r'''
       query GetMyCart {
         getMyCart {
+          id
           items {
+            productId
+            variantId
+            quantity
             product {
               id
               name
-              price
               images
             }
-            quantity
-            size
-            color
+            variant {
+              id
+              color
+              size
+              price
+            }
           }
         }
       }
@@ -93,15 +97,17 @@ class CartRemoteDataSourceImpl implements CartRemoteDataSource {
     final List<dynamic> itemsData = result.data?['getMyCart']?['items'] ?? [];
     return itemsData.map((item) {
       final product = item['product'];
+      final variant = item['variant'];
       return CartItemModel(
-        productId: product['id'],
+        productId: item['productId'],
+        variantId: item['variantId'],
         name: product['name'],
-        price: (product['price'] as num).toDouble(),
+        price: (variant['price'] as num).toDouble(),
         imageUrl: (product['images'] as List).isNotEmpty
             ? product['images'][0]
             : '',
-        color: item['color'] ?? '',
-        size: item['size'] ?? '',
+        color: variant['color'] ?? '',
+        size: variant['size'] ?? '',
         quantity: item['quantity'] ?? 1,
       );
     }).toList();
@@ -110,13 +116,14 @@ class CartRemoteDataSourceImpl implements CartRemoteDataSource {
   @override
   Future<void> updateCartItem(
     String productId,
+    String variantId,
     String size,
     String color,
     int quantity,
   ) async {
     const String mutation = r'''
-      mutation UpdateCartItem($productId: ID!, $size: String!, $color: String!, $quantity: Int!) {
-        updateCartItem(productId: $productId, size: $size, color: $color, quantity: $quantity) {
+      mutation UpdateCartItemQuantity($input: UpdateCartItemInput!) {
+        updateCartItemQuantity(input: $input) {
           id
         }
       }
@@ -125,10 +132,11 @@ class CartRemoteDataSourceImpl implements CartRemoteDataSource {
     final MutationOptions options = MutationOptions(
       document: gql(mutation),
       variables: {
-        'productId': productId,
-        'size': size,
-        'color': color,
-        'quantity': quantity,
+        'input': {
+          'productId': productId,
+          'variantId': variantId,
+          'quantity': quantity,
+        },
       },
     );
 
@@ -142,12 +150,13 @@ class CartRemoteDataSourceImpl implements CartRemoteDataSource {
   @override
   Future<void> removeFromCart(
     String productId,
+    String variantId,
     String size,
     String color,
   ) async {
     const String mutation = r'''
-      mutation RemoveFromCart($productId: ID!, $size: String!, $color: String!) {
-        removeFromCart(productId: $productId, size: $size, color: $color) {
+      mutation RemoveFromCart($productId: ID!, $variantId: ID!) {
+        removeFromCart(productId: $productId, variantId: $variantId) {
           id
         }
       }
@@ -155,7 +164,7 @@ class CartRemoteDataSourceImpl implements CartRemoteDataSource {
 
     final MutationOptions options = MutationOptions(
       document: gql(mutation),
-      variables: {'productId': productId, 'size': size, 'color': color},
+      variables: {'productId': productId, 'variantId': variantId},
     );
     final QueryResult result = await client.mutate(options);
 

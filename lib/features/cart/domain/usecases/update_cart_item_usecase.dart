@@ -13,6 +13,7 @@ class UpdateCartItemUseCase implements UseCase<void, UpdateCartItemParams> {
   Future<Either<Failure, void>> call(UpdateCartItemParams params) async {
     return await repository.updateCartItem(
       productId: params.productId,
+      variantId: params.variantId,
       size: params.size,
       color: params.color,
       quantity: params.quantity,
@@ -22,12 +23,14 @@ class UpdateCartItemUseCase implements UseCase<void, UpdateCartItemParams> {
 
 class UpdateCartItemParams {
   final String productId;
+  final String variantId;
   final String size;
   final String color;
   final int quantity;
 
   UpdateCartItemParams({
     required this.productId,
+    required this.variantId,
     required this.size,
     required this.color,
     required this.quantity,

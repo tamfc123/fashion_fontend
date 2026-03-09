@@ -257,6 +257,7 @@ class _CartItemTile extends StatelessWidget {
                       context.read<CartBloc>().add(
                         RemoveCartItemEvent(
                           productId: item.productId,
+                          variantId: item.variantId,
                           size: item.size,
                           color: item.color,
                         ),
@@ -297,6 +298,7 @@ class _CartItemTile extends StatelessWidget {
                               context.read<CartBloc>().add(
                                 UpdateCartItemQuantityEvent(
                                   productId: item.productId,
+                                  variantId: item.variantId,
                                   size: item.size,
                                   color: item.color,
                                   quantity: item.quantity - 1,
@@ -318,6 +320,7 @@ class _CartItemTile extends StatelessWidget {
                             context.read<CartBloc>().add(
                               UpdateCartItemQuantityEvent(
                                 productId: item.productId,
+                                variantId: item.variantId,
                                 size: item.size,
                                 color: item.color,
                                 quantity: item.quantity + 1,

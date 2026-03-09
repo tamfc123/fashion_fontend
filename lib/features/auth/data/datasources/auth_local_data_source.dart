@@ -27,12 +27,12 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
 
   @override
   Future<String?> getToken() async {
-    return await secureStorage.read(key: tokenKey);
+    return sharedPreferences.getString(tokenKey);
   }
 
   @override
   Future<void> cacheToken(String token) async {
-    await secureStorage.write(key: tokenKey, value: token);
+    await sharedPreferences.setString(tokenKey, token);
   }
 
   @override
@@ -55,7 +55,7 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
 
   @override
   Future<void> clearCache() async {
-    await secureStorage.delete(key: tokenKey);
+    await sharedPreferences.remove(tokenKey);
     await sharedPreferences.remove(cachedUserKey);
   }
 }

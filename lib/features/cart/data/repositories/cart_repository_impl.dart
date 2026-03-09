@@ -25,7 +25,7 @@ class CartRepositoryImpl implements CartRepository {
   @override
   Future<Either<Failure, void>> addToCart(CartItemEntity item) async {
     try {
-      final String? token = sharedPreferences.getString('TOKEN');
+      final String? token = sharedPreferences.getString('AUTH_TOKEN');
       final CartItemModel itemModel = CartItemModel.fromEntity(item);
 
       if (token != null && token.isNotEmpty) {
@@ -56,6 +56,7 @@ class CartRepositoryImpl implements CartRepository {
           final existingItem = currentCart[existingIndex];
           currentCart[existingIndex] = CartItemModel(
             productId: existingItem.productId,
+            variantId: existingItem.variantId,
             name: existingItem.name,
             price: existingItem.price,
             imageUrl: existingItem.imageUrl,
@@ -78,7 +79,7 @@ class CartRepositoryImpl implements CartRepository {
   @override
   Future<Either<Failure, List<CartItemEntity>>> getCartItems() async {
     try {
-      final String? token = sharedPreferences.getString('TOKEN');
+      final String? token = sharedPreferences.getString('AUTH_TOKEN');
       if (token != null && token.isNotEmpty) {
         if (await networkInfo.isConnected) {
           final List<CartItemModel> models = await remoteDataSource.getCart();
@@ -98,14 +99,20 @@ class CartRepositoryImpl implements CartRepository {
   @override
   Future<Either<Failure, void>> removeFromCart({
     required String productId,
+    required String variantId,
     required String size,
     required String color,
   }) async {
     try {
-      final String? token = sharedPreferences.getString('TOKEN');
+      final String? token = sharedPreferences.getString('AUTH_TOKEN');
       if (token != null && token.isNotEmpty) {
         if (await networkInfo.isConnected) {
-          await remoteDataSource.removeFromCart(productId, size, color);
+          await remoteDataSource.removeFromCart(
+            productId,
+            variantId,
+            size,
+            color,
+          );
           return const Right(null);
         } else {
           return const Left(NetworkFailure(message: 'No internet connection'));
@@ -115,6 +122,7 @@ class CartRepositoryImpl implements CartRepository {
         currentCart.removeWhere(
           (item) =>
               item.productId == productId &&
+              item.variantId == variantId &&
               item.size == size &&
               item.color == color,
         );
@@ -129,16 +137,18 @@ class CartRepositoryImpl implements CartRepository {
   @override
   Future<Either<Failure, void>> updateCartItem({
     required String productId,
+    required String variantId,
     required String size,
     required String color,
     required int quantity,
   }) async {
     try {
-      final String? token = sharedPreferences.getString('TOKEN');
+      final String? token = sharedPreferences.getString('AUTH_TOKEN');
       if (token != null && token.isNotEmpty) {
         if (await networkInfo.isConnected) {
           await remoteDataSource.updateCartItem(
             productId,
+            variantId,
             size,
             color,
             quantity,
@@ -152,6 +162,7 @@ class CartRepositoryImpl implements CartRepository {
         final index = currentCart.indexWhere(
           (item) =>
               item.productId == productId &&
+              item.variantId == variantId &&
               item.size == size &&
               item.color == color,
         );
@@ -160,6 +171,7 @@ class CartRepositoryImpl implements CartRepository {
           final existingItem = currentCart[index];
           currentCart[index] = CartItemModel(
             productId: existingItem.productId,
+            variantId: existingItem.variantId,
             name: existingItem.name,
             price: existingItem.price,
             imageUrl: existingItem.imageUrl,

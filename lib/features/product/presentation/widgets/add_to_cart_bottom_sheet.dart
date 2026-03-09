@@ -178,6 +178,7 @@ class _AddToCartBottomSheetState extends State<AddToCartBottomSheet> {
 
                               final cartItem = CartItemEntity(
                                 productId: widget.product.id,
+                                variantId: variant?.id ?? '',
                                 name: widget.product.name,
                                 price: price,
                                 imageUrl: imageUrl,
