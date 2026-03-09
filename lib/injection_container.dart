@@ -28,6 +28,15 @@ import 'features/product/domain/usecases/get_product_details.dart';
 import 'features/product/domain/usecases/get_products.dart';
 import 'features/product/presentation/bloc/product_bloc.dart';
 import 'features/product/presentation/bloc/product_detail_bloc.dart';
+import 'features/cart/data/datasources/cart_local_data_source.dart';
+import 'features/cart/data/datasources/cart_remote_data_source.dart';
+import 'features/cart/data/repositories/cart_repository_impl.dart';
+import 'features/cart/domain/repositories/cart_repository.dart';
+import 'features/cart/domain/usecases/add_to_cart_usecase.dart';
+import 'features/cart/domain/usecases/get_cart_items_usecase.dart';
+import 'features/cart/domain/usecases/update_cart_item_usecase.dart';
+import 'features/cart/domain/usecases/remove_from_cart_usecase.dart';
+import 'features/cart/presentation/bloc/cart_bloc.dart';
 
 final sl = GetIt.instance;
 
@@ -103,6 +112,41 @@ Future<void> init() async {
   // Data sources
   sl.registerLazySingleton<ProductRemoteDataSource>(
     () => ProductRemoteDataSourceImpl(client: sl()),
+  );
+
+  /// Features - Cart
+  // Use cases
+  sl.registerLazySingleton(() => AddToCartUseCase(sl()));
+  sl.registerLazySingleton(() => GetCartItemsUseCase(sl()));
+  sl.registerLazySingleton(() => UpdateCartItemUseCase(sl()));
+  sl.registerLazySingleton(() => RemoveFromCartUseCase(sl()));
+
+  // Bloc
+  sl.registerFactory(
+    () => CartBloc(
+      addToCartUseCase: sl(),
+      getCartItemsUseCase: sl(),
+      updateCartItemUseCase: sl(),
+      removeFromCartUseCase: sl(),
+    ),
+  );
+
+  // Repository
+  sl.registerLazySingleton<CartRepository>(
+    () => CartRepositoryImpl(
+      remoteDataSource: sl(),
+      localDataSource: sl(),
+      networkInfo: sl(),
+      sharedPreferences: sl(),
+    ),
+  );
+
+  // Data sources
+  sl.registerLazySingleton<CartRemoteDataSource>(
+    () => CartRemoteDataSourceImpl(client: sl()),
+  );
+  sl.registerLazySingleton<CartLocalDataSource>(
+    () => CartLocalDataSourceImpl(sharedPreferences: sl()),
   );
 
   // Ánh xạ AuthLocalDataSource thành TokenProvider cho GraphQLClient

@@ -13,6 +13,7 @@ import '../../../product/presentation/widgets/product_card.dart';
 import '../../../product/presentation/widgets/promo_banner_slider.dart';
 import '../../../product/presentation/pages/product_detail_page.dart';
 import '../../../profile/presentation/pages/profile_page.dart';
+import '../../../cart/presentation/pages/cart_page.dart';
 import '../../../../injection_container.dart';
 
 class HomePage extends StatefulWidget {
@@ -47,26 +48,37 @@ class _HomePageState extends State<HomePage> {
             _buildProfileTab(context),
           ],
         ),
-        bottomNavigationBar: BottomNavigationBar(
-          currentIndex: _currentIndex,
-          onTap: (index) {
-            setState(() {
-              _currentIndex = index;
-            });
-          },
-          type: BottomNavigationBarType.fixed,
-          selectedItemColor: Theme.of(context).primaryColor,
-          unselectedItemColor: Colors.grey,
-          items: const [
-            BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-            BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Search'),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.shopping_cart),
-              label: 'Cart',
-            ),
-            BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
-          ],
-        ),
+        bottomNavigationBar: _currentIndex == 2
+            ? null
+            : BottomNavigationBar(
+                currentIndex: _currentIndex,
+                onTap: (index) {
+                  setState(() {
+                    _currentIndex = index;
+                  });
+                },
+                type: BottomNavigationBarType.fixed,
+                selectedItemColor: Theme.of(context).primaryColor,
+                unselectedItemColor: Colors.grey,
+                items: const [
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.home),
+                    label: 'Home',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.search),
+                    label: 'Search',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.shopping_cart),
+                    label: 'Cart',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.person),
+                    label: 'Profile',
+                  ),
+                ],
+              ),
       ),
     );
   }
@@ -89,15 +101,6 @@ class _HomePageState extends State<HomePage> {
               fontSize: 22,
             ),
           ),
-          actions: [
-            IconButton(
-              icon: const Icon(
-                Icons.shopping_bag_outlined,
-                color: Colors.black,
-              ),
-              onPressed: () {},
-            ),
-          ],
         ),
         body: RefreshIndicator(
           color: Colors.black,
@@ -268,13 +271,14 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // --- TAB 3: CART ---
   Widget _buildCartTab() {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Cart')),
-      body: const Center(
-        child: Chip(label: Text('Tính năng Giỏ Hàng đang phát triển 🚧')),
-      ),
+    return CartPage(
+      isTab: true,
+      onBack: () {
+        setState(() {
+          _currentIndex = 0; // Return to Home
+        });
+      },
     );
   }
 

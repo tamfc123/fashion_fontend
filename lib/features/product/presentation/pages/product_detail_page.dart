@@ -6,8 +6,11 @@ import '../../../../injection_container.dart';
 import '../bloc/product_detail_bloc.dart';
 import '../bloc/product_detail_event.dart';
 import '../bloc/product_detail_state.dart';
+import '../../../cart/presentation/bloc/cart_bloc.dart';
+import '../../../cart/presentation/bloc/cart_state.dart';
 import '../widgets/add_to_cart_bottom_sheet.dart';
 import '../widgets/product_image_carousel.dart';
+import '../../../cart/presentation/pages/cart_page.dart';
 
 class ProductDetailPage extends StatelessWidget {
   final Object
@@ -26,8 +29,15 @@ class ProductDetailPage extends StatelessWidget {
   }
 }
 
-class _ProductDetailPageView extends StatelessWidget {
+class _ProductDetailPageView extends StatefulWidget {
   const _ProductDetailPageView();
+
+  @override
+  State<_ProductDetailPageView> createState() => _ProductDetailPageViewState();
+}
+
+class _ProductDetailPageViewState extends State<_ProductDetailPageView> {
+  final GlobalKey _cartKey = GlobalKey();
 
   @override
   Widget build(BuildContext context) {
@@ -65,13 +75,50 @@ class _ProductDetailPageView extends StatelessWidget {
             padding: const EdgeInsets.all(8.0),
             child: CircleAvatar(
               backgroundColor: Colors.white.withValues(alpha: 0.8),
-              child: IconButton(
-                icon: const Icon(
-                  Icons.share_outlined,
-                  color: Colors.black,
-                  size: 20,
-                ),
-                onPressed: () {},
+              child: BlocBuilder<CartBloc, CartState>(
+                builder: (context, state) {
+                  return Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      IconButton(
+                        key: _cartKey,
+                        icon: const Icon(
+                          Icons.shopping_cart_outlined,
+                          color: Colors.black,
+                          size: 20,
+                        ),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const CartPage(),
+                            ),
+                          );
+                        },
+                      ),
+                      if (state.itemCount > 0)
+                        Positioned(
+                          right: 4,
+                          top: 4,
+                          child: Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: const BoxDecoration(
+                              color: Colors.red,
+                              shape: BoxShape.circle,
+                            ),
+                            child: Text(
+                              '${state.itemCount}',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
+                  );
+                },
               ),
             ),
           ),
@@ -208,6 +255,7 @@ class _ProductDetailPageView extends StatelessWidget {
                               return AddToCartBottomSheet(
                                 product: product,
                                 bloc: bloc,
+                                cartKey: _cartKey,
                               );
                             },
                           );
