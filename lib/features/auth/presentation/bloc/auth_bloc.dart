@@ -5,6 +5,7 @@ import '../../domain/usecases/get_current_user.dart';
 import '../../domain/usecases/login.dart';
 import '../../domain/usecases/logout.dart';
 import '../../domain/usecases/register.dart';
+import '../../domain/usecases/update_profile.dart';
 import 'auth_event.dart';
 import 'auth_state.dart';
 
@@ -13,17 +14,20 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final RegisterUseCase registerUseCase;
   final LogoutUseCase logoutUseCase;
   final GetCurrentUserUseCase getCurrentUserUseCase;
+  final UpdateProfileUseCase updateProfileUseCase;
 
   AuthBloc({
     required this.loginUseCase,
     required this.registerUseCase,
     required this.logoutUseCase,
     required this.getCurrentUserUseCase,
+    required this.updateProfileUseCase,
   }) : super(AuthInitial()) {
     on<LoginEvent>(_onLogin);
     on<RegisterEvent>(_onRegister);
     on<LogoutEvent>(_onLogout);
     on<GetCurrentUserEvent>(_onGetCurrentUser);
+    on<UpdateProfileEvent>(_onUpdateProfile);
   }
 
   Future<void> _onLogin(LoginEvent event, Emitter<AuthState> emit) async {
@@ -41,7 +45,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   Future<void> _onRegister(RegisterEvent event, Emitter<AuthState> emit) async {
     emit(AuthLoading());
     final failureOrAuthResponse = await registerUseCase(
-      RegisterParams(email: event.email, password: event.password, name: event.name),
+      RegisterParams(
+        email: event.email,
+        password: event.password,
+        name: event.name,
+      ),
     );
 
     failureOrAuthResponse.fold(
@@ -60,7 +68,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     );
   }
 
-  Future<void> _onGetCurrentUser(GetCurrentUserEvent event, Emitter<AuthState> emit) async {
+  Future<void> _onGetCurrentUser(
+    GetCurrentUserEvent event,
+    Emitter<AuthState> emit,
+  ) async {
     emit(AuthLoading());
     final failureOrUser = await getCurrentUserUseCase(NoParams());
 
@@ -70,9 +81,30 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     );
   }
 
+  Future<void> _onUpdateProfile(
+    UpdateProfileEvent event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(AuthLoading());
+    final failureOrUser = await updateProfileUseCase(
+      UpdateProfileParams(
+        name: event.name,
+        phone: event.phone,
+        street: event.street,
+        district: event.district,
+        city: event.city,
+      ),
+    );
+
+    failureOrUser.fold(
+      (failure) => emit(AuthError(message: _mapFailureToMessage(failure))),
+      (user) => emit(AuthAuthenticated(user: user)),
+    );
+  }
+
   String _mapFailureToMessage(dynamic failure) {
     // Tạm thời xuất toString() do Failure chưa override map to Message.
-    // Thực tế có thể check kiểu `if (failure is ServerFailure) return failure.message;` 
+    // Thực tế có thể check kiểu `if (failure is ServerFailure) return failure.message;`
     // do ta có thuộc tính message cho tất cả Failures.
     try {
       return failure.message as String;

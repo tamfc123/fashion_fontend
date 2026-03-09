@@ -1,4 +1,6 @@
-class AddressEntity {
+import 'package:equatable/equatable.dart';
+
+class AddressEntity extends Equatable {
   final String phone;
   final String street;
   final String district;
@@ -13,6 +15,9 @@ class AddressEntity {
 
   /// Formatted string sent to backend CheckoutInput.shippingAddress
   String get shippingAddress => '$street, $district, $city';
+
+  @override
+  List<Object?> get props => [phone, street, district, city];
 
   AddressEntity copyWith({
     String? phone,

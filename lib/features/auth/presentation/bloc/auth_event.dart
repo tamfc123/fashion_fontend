@@ -35,3 +35,22 @@ class RegisterEvent extends AuthEvent {
 class LogoutEvent extends AuthEvent {}
 
 class GetCurrentUserEvent extends AuthEvent {}
+
+class UpdateProfileEvent extends AuthEvent {
+  final String name;
+  final String? phone;
+  final String? street;
+  final String? district;
+  final String? city;
+
+  const UpdateProfileEvent({
+    required this.name,
+    this.phone,
+    this.street,
+    this.district,
+    this.city,
+  });
+
+  @override
+  List<Object?> get props => [name, phone, street, district, city];
+}

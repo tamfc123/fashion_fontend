@@ -27,7 +27,10 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<Either<Failure, AuthResponse>> login(LoginParams params) async {
     if (await networkInfo.isConnected) {
       try {
-        final remoteAuth = await remoteDataSource.login(params.email, params.password);
+        final remoteAuth = await remoteDataSource.login(
+          params.email,
+          params.password,
+        );
         await localDataSource.cacheToken(remoteAuth.token);
         await localDataSource.cacheUser(remoteAuth.user as UserModel);
         return Right(remoteAuth);
@@ -43,7 +46,11 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<Either<Failure, AuthResponse>> register(RegisterParams params) async {
     if (await networkInfo.isConnected) {
       try {
-        final remoteAuth = await remoteDataSource.register(params.email, params.password, params.name);
+        final remoteAuth = await remoteDataSource.register(
+          params.email,
+          params.password,
+          params.name,
+        );
         await localDataSource.cacheToken(remoteAuth.token);
         await localDataSource.cacheUser(remoteAuth.user as UserModel);
         return Right(remoteAuth);
@@ -77,6 +84,33 @@ class AuthRepositoryImpl implements AuthRepository {
       }
     } on CacheException {
       return const Left(AuthFailure(message: 'Cache error or data missing'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, User>> updateProfile({
+    required String name,
+    String? phone,
+    String? street,
+    String? district,
+    String? city,
+  }) async {
+    if (await networkInfo.isConnected) {
+      try {
+        final updatedUser = await remoteDataSource.updateProfile(
+          name: name,
+          phone: phone,
+          street: street,
+          district: district,
+          city: city,
+        );
+        await localDataSource.cacheUser(updatedUser);
+        return Right(updatedUser);
+      } on ServerException catch (e) {
+        return Left(ServerFailure(message: e.message));
+      }
+    } else {
+      return const Left(NetworkFailure());
     }
   }
 }

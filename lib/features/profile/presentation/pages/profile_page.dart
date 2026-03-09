@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../address/presentation/pages/address_page.dart';
 import '../../../admin/presentation/pages/add_product_page.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../auth/presentation/bloc/auth_event.dart';
@@ -56,7 +57,14 @@ class ProfilePage extends StatelessWidget {
                         icon: Icons.location_on_outlined,
                         title: 'Địa chỉ giao hàng',
                         subtitle: 'Quản lý địa chỉ nhận hàng',
-                        onTap: () {},
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const AddressPage(),
+                            ),
+                          );
+                        },
                       ),
                       _MenuItemData(
                         icon: Icons.settings_outlined,

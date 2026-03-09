@@ -11,4 +11,11 @@ abstract class AuthRepository {
   Future<Either<Failure, AuthResponse>> register(RegisterParams params);
   Future<Either<Failure, void>> logout();
   Future<Either<Failure, User>> getCurrentUser();
+  Future<Either<Failure, User>> updateProfile({
+    required String name,
+    String? phone,
+    String? street,
+    String? district,
+    String? city,
+  });
 }
