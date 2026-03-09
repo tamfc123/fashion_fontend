@@ -84,8 +84,9 @@ class _LoginPageState extends State<LoginPage> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const AuthHeader(
-                      title: 'Welcome Back!',
-                      subtitle: 'Sign in to continue',
+                      title: 'Chào mừng trở lại!',
+                      subtitle: 'Đăng nhập để vào cửa hàng',
+                      imagePath: 'assets/images/login.png',
                     ),
                     const SizedBox(height: 32),
                     Card(
@@ -109,10 +110,10 @@ class _LoginPageState extends State<LoginPage> {
                                 keyboardType: TextInputType.emailAddress,
                                 validator: (value) {
                                   if (value == null || value.trim().isEmpty) {
-                                    return 'Email is required';
+                                    return 'Vui lòng nhập Email';
                                   }
                                   if (!value.contains('@')) {
-                                    return 'Invalid email format';
+                                    return 'Email không hợp lệ';
                                   }
                                   return null;
                                 },
@@ -120,15 +121,15 @@ class _LoginPageState extends State<LoginPage> {
                               const SizedBox(height: 16),
                               AuthTextField(
                                 controller: _passwordController,
-                                label: 'Password',
+                                label: 'Mật khẩu',
                                 readOnly: isLoading,
                                 obscureText: true,
                                 validator: (value) {
                                   if (value == null || value.trim().isEmpty) {
-                                    return 'Password is required';
+                                    return 'Vui lòng nhập Mật khẩu';
                                   }
                                   if (value.length < 6) {
-                                    return 'Password must be at least 6 characters';
+                                    return 'Mật khẩu tối thiểu 6 ký tự';
                                   }
                                   return null;
                                 },
@@ -136,7 +137,7 @@ class _LoginPageState extends State<LoginPage> {
                               const SizedBox(height: 24),
                               AuthButton(
                                 onPressed: _onLoginSubmitted,
-                                text: 'Login',
+                                text: 'Đăng Nhập',
                                 isLoading: isLoading,
                               ),
                             ],
@@ -159,7 +160,7 @@ class _LoginPageState extends State<LoginPage> {
                         foregroundColor: Theme.of(context).colorScheme.primary,
                       ),
                       child: const Text(
-                        'Don\'t have an account? Register',
+                        'Bạn chưa tham gia? Đăng ký ngay',
                         style: TextStyle(fontWeight: FontWeight.w600),
                       ),
                     ),
