@@ -87,8 +87,9 @@ class _RegisterPageState extends State<RegisterPage> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const AuthHeader(
-                      title: 'Create Account',
-                      subtitle: 'Join us to start shopping',
+                      title: 'Tạo Tài Khoản',
+                      subtitle: 'Đăng ký để bắt đầu mua sắm',
+                      imagePath: 'assets/images/register.png',
                     ),
                     const SizedBox(height: 32),
                     Card(
@@ -107,12 +108,12 @@ class _RegisterPageState extends State<RegisterPage> {
                             children: [
                               AuthTextField(
                                 controller: _nameController,
-                                label: 'Name',
+                                label: 'Họ và Tên',
                                 readOnly: isLoading,
                                 keyboardType: TextInputType.name,
                                 validator: (value) {
                                   if (value == null || value.trim().isEmpty) {
-                                    return 'Name is required';
+                                    return 'Vui lòng nhập Họ và Tên';
                                   }
                                   return null;
                                 },
@@ -120,15 +121,15 @@ class _RegisterPageState extends State<RegisterPage> {
                               const SizedBox(height: 16),
                               AuthTextField(
                                 controller: _emailController,
-                                label: 'Email',
+                                label: 'Tài khoản Email',
                                 readOnly: isLoading,
                                 keyboardType: TextInputType.emailAddress,
                                 validator: (value) {
                                   if (value == null || value.trim().isEmpty) {
-                                    return 'Email is required';
+                                    return 'Vui lòng nhập Email';
                                   }
                                   if (!value.contains('@')) {
-                                    return 'Invalid email format';
+                                    return 'Email không hợp lệ';
                                   }
                                   return null;
                                 },
@@ -136,15 +137,15 @@ class _RegisterPageState extends State<RegisterPage> {
                               const SizedBox(height: 16),
                               AuthTextField(
                                 controller: _passwordController,
-                                label: 'Password',
+                                label: 'Mật khẩu',
                                 readOnly: isLoading,
                                 obscureText: true,
                                 validator: (value) {
                                   if (value == null || value.trim().isEmpty) {
-                                    return 'Password is required';
+                                    return 'Vui lòng nhập Mật khẩu';
                                   }
                                   if (value.length < 6) {
-                                    return 'Password must be at least 6 characters';
+                                    return 'Mật khẩu tối thiểu 6 ký tự';
                                   }
                                   return null;
                                 },
@@ -152,7 +153,7 @@ class _RegisterPageState extends State<RegisterPage> {
                               const SizedBox(height: 24),
                               AuthButton(
                                 onPressed: _onRegisterSubmitted,
-                                text: 'Register',
+                                text: 'Đăng Ký Khách Mới',
                                 isLoading: isLoading,
                               ),
                             ],
@@ -171,7 +172,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         foregroundColor: Theme.of(context).colorScheme.primary,
                       ),
                       child: const Text(
-                        'Already have an account? Login',
+                        'Đã có tài khoản? Đăng nhập ngay',
                         style: TextStyle(fontWeight: FontWeight.w600),
                       ),
                     ),
