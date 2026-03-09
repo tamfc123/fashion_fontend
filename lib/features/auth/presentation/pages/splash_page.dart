@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
@@ -18,8 +17,11 @@ class _SplashPageState extends State<SplashPage> {
   @override
   void initState() {
     super.initState();
-    // Kích hoạt việc kiểm tra Token ở Local ngay khi Splash khởi chạy
-    context.read<AuthBloc>().add(GetCurrentUserEvent());
+    Future.delayed(const Duration(seconds: 2), () {
+      if (mounted) {
+        context.read<AuthBloc>().add(GetCurrentUserEvent());
+      }
+    });
   }
 
   @override
@@ -43,10 +45,56 @@ class _SplashPageState extends State<SplashPage> {
           );
         }
       },
-      child: const Scaffold(
-        body: Center(
-          child:
-              CircularProgressIndicator(), // Splash screen logic MVP đơn giản
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        body: Stack(
+          fit: StackFit.expand,
+          children: [
+            Center(
+              child: Image.asset(
+                'assets/images/welcome.png',
+                fit: BoxFit.fitWidth,
+                width: double.infinity,
+              ),
+            ),
+
+            // Gradient Overlay for text readability (Optional but recommended)
+            Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [Colors.transparent, Colors.white.withAlpha(200)],
+                ),
+              ),
+            ),
+
+            // Bottom Anchored Loading Indicator
+            const Positioned(
+              bottom: 60,
+              left: 0,
+              right: 0,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
+                    strokeWidth: 3,
+                  ),
+                  SizedBox(height: 16),
+                  Text(
+                    'ĐANG TẢI BỘ SƯU TẬP...',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 2.0,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );
