@@ -35,8 +35,6 @@ class ProfilePage extends StatelessWidget {
                   ),
                 ),
 
-                // ─── STATS ROW ─────────────────────────────────────────────
-                SliverToBoxAdapter(child: _StatsRow()),
 
                 // ─── GENERAL MENU ──────────────────────────────────────────
                 SliverToBoxAdapter(
@@ -168,7 +166,7 @@ class _HeroHeader extends StatelessWidget {
         children: [
           // App bar row
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Text(
                 'HỒ SƠ CÁ NHÂN',
@@ -179,14 +177,7 @@ class _HeroHeader extends StatelessWidget {
                   fontSize: 13,
                 ),
               ),
-              IconButton(
-                icon: const Icon(
-                  Icons.edit_outlined,
-                  color: Colors.white54,
-                  size: 20,
-                ),
-                onPressed: () {},
-              ),
+
             ],
           ),
           const SizedBox(height: 24),
@@ -275,68 +266,6 @@ class _HeroHeader extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// STATS ROW
-// ─────────────────────────────────────────────────────────────────────────────
-class _StatsRow extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.fromLTRB(20, 20, 20, 8),
-      padding: const EdgeInsets.symmetric(vertical: 20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.06),
-            blurRadius: 16,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          _buildStat('0', 'Đơn hàng'),
-          _buildVerticalDivider(),
-          _buildStat('0', 'Yêu thích'),
-          _buildVerticalDivider(),
-          _buildStat('0', 'Đánh giá'),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildStat(String value, String label) {
-    return Expanded(
-      child: Column(
-        children: [
-          Text(
-            value,
-            style: const TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.w900,
-              color: Colors.black,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            style: const TextStyle(
-              fontSize: 11,
-              color: Colors.grey,
-              letterSpacing: 0.5,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildVerticalDivider() {
-    return Container(width: 1, height: 36, color: Colors.grey.shade200);
-  }
-}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // MENU SECTION
@@ -491,18 +420,6 @@ class _AdminZone extends StatelessWidget {
             ),
           );
         },
-      ),
-      _AdminTileData(
-        icon: Icons.dashboard_outlined,
-        title: 'Quản lý cửa hàng',
-        subtitle: 'Xem và chỉnh sửa sản phẩm',
-        onTap: () {},
-      ),
-      _AdminTileData(
-        icon: Icons.bar_chart_outlined,
-        title: 'Báo cáo doanh thu',
-        subtitle: 'Thống kê & phân tích bán hàng',
-        onTap: () {},
       ),
     ];
 

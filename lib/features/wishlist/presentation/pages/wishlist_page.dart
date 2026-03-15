@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 
-import '../../../../injection_container.dart';
 import '../../../product/presentation/pages/product_detail_page.dart';
 import '../bloc/wishlist_bloc.dart';
 import '../bloc/wishlist_event.dart';
@@ -182,7 +182,10 @@ class _WishlistProductCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    '${product.variants[0].price}đ',
+                    NumberFormat.currency(
+                      locale: 'vi_VN',
+                      symbol: 'đ',
+                    ).format(product.variants[0].price),
                     style: const TextStyle(
                       fontWeight: FontWeight.w900,
                       fontSize: 14,
