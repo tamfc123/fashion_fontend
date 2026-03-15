@@ -8,6 +8,8 @@ import '../../../auth/presentation/bloc/auth_event.dart';
 import '../../../auth/presentation/bloc/auth_state.dart';
 import '../../../../injection_container.dart' as di;
 import '../../../admin/presentation/bloc/add_product_bloc.dart';
+import '../../../order/presentation/pages/order_history_page.dart';
+import '../../../wishlist/presentation/pages/wishlist_page.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
@@ -45,13 +47,27 @@ class ProfilePage extends StatelessWidget {
                         icon: Icons.shopping_bag_outlined,
                         title: 'Lịch sử đơn hàng',
                         subtitle: 'Xem các đơn hàng đã đặt',
-                        onTap: () {},
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const OrderHistoryPage(),
+                            ),
+                          );
+                        },
                       ),
                       _MenuItemData(
                         icon: Icons.favorite_border_rounded,
                         title: 'Yêu thích',
                         subtitle: 'Sản phẩm bạn đã thích',
-                        onTap: () {},
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const WishlistPage(),
+                            ),
+                          );
+                        },
                       ),
                       _MenuItemData(
                         icon: Icons.location_on_outlined,

@@ -11,6 +11,9 @@ import '../../../cart/presentation/bloc/cart_state.dart';
 import '../widgets/add_to_cart_bottom_sheet.dart';
 import '../widgets/product_image_carousel.dart';
 import '../../../cart/presentation/pages/cart_page.dart';
+import '../../../wishlist/presentation/bloc/wishlist_bloc.dart';
+import '../../../wishlist/presentation/bloc/wishlist_event.dart';
+import '../../../wishlist/presentation/bloc/wishlist_state.dart';
 
 class ProductDetailPage extends StatelessWidget {
   final Object
@@ -24,13 +27,34 @@ class ProductDetailPage extends StatelessWidget {
       create: (context) =>
           sl<ProductDetailBloc>()
             ..add(GetProductDetailEvent(productId: productId.toString())),
-      child: const _ProductDetailPageView(),
+      child: BlocListener<WishlistBloc, WishlistState>(
+        listener: (context, state) {
+          if (state is WishlistToggleSuccess) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.message),
+                duration: const Duration(seconds: 1),
+                backgroundColor: Colors.black,
+              ),
+            );
+          } else if (state is WishlistError) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.message),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+        },
+        child: _ProductDetailPageView(productId: productId),
+      ),
     );
   }
 }
 
 class _ProductDetailPageView extends StatefulWidget {
-  const _ProductDetailPageView();
+  final Object productId;
+  const _ProductDetailPageView({required this.productId});
 
   @override
   State<_ProductDetailPageView> createState() => _ProductDetailPageViewState();
@@ -61,13 +85,41 @@ class _ProductDetailPageViewState extends State<_ProductDetailPageView> {
             padding: const EdgeInsets.all(8.0),
             child: CircleAvatar(
               backgroundColor: Colors.white.withValues(alpha: 0.8),
-              child: IconButton(
-                icon: const Icon(
-                  Icons.favorite_border,
-                  color: Colors.black,
-                  size: 20,
-                ),
-                onPressed: () {},
+              child: BlocBuilder<WishlistBloc, WishlistState>(
+                builder: (context, state) {
+                  if (state is WishlistActionInProgress) {
+                    return const SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.black,
+                      ),
+                    );
+                  }
+
+                  bool isFavorite = false;
+                  if (state is WishlistLoaded) {
+                    isFavorite = state.wishlistIds.contains(widget.productId.toString());
+                  } else if (state is WishlistToggleSuccess) {
+                    isFavorite = state.wishlistIds.contains(widget.productId.toString());
+                  }
+
+                  return IconButton(
+                    icon: Icon(
+                      isFavorite ? Icons.favorite : Icons.favorite_border,
+                      color: isFavorite ? Colors.red : Colors.black,
+                      size: 20,
+                    ),
+                    onPressed: () {
+                      context.read<WishlistBloc>().add(
+                            ToggleWishlistEvent(
+                              productId: widget.productId.toString(),
+                            ),
+                          );
+                    },
+                  );
+                },
               ),
             ),
           ),

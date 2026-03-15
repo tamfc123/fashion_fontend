@@ -5,6 +5,9 @@ import '../bloc/cart_bloc.dart';
 import '../bloc/cart_event.dart';
 import '../bloc/cart_state.dart';
 import '../../../address/presentation/pages/address_page.dart';
+import '../../../auth/presentation/bloc/auth_bloc.dart';
+import '../../../auth/presentation/bloc/auth_state.dart';
+import '../../../order/presentation/pages/checkout_page.dart';
 
 class CartPage extends StatefulWidget {
   final bool isTab;
@@ -169,16 +172,55 @@ class _CartPageState extends State<CartPage> {
                 onPressed: () async {
                   final scaffoldMessenger = ScaffoldMessenger.of(context);
                   final navigator = Navigator.of(context);
+
+                  // 1. Check if user already has a complete address in AuthBloc
+                  final authState = context.read<AuthBloc>().state;
+                  if (authState is AuthAuthenticated) {
+                    final u = authState.user;
+                    final hasAddress =
+                        (u.phone?.isNotEmpty ?? false) &&
+                        (u.street?.isNotEmpty ?? false) &&
+                        (u.district?.isNotEmpty ?? false) &&
+                        (u.city?.isNotEmpty ?? false);
+
+                    if (hasAddress) {
+                      final combinedAddress =
+                          '${u.street}, ${u.district}, ${u.city}';
+                      navigator.push(
+                        MaterialPageRoute(
+                          builder: (_) => CheckoutPage(
+                            shippingAddress: combinedAddress,
+                            phone: u.phone!,
+                          ),
+                        ),
+                      );
+                      return; // Stop here
+                    }
+                  }
+
+                  // 2. If no address, push to AddressPage
                   final address = await navigator.push(
                     MaterialPageRoute(builder: (_) => const AddressPage()),
                   );
-                  if (address != null) {
-                    // TODO: Navigate to CheckoutConfirmPage with address
+                  if (address != null &&
+                      // Since address is AddressEntity, its getters don't return null
+                      address.shippingAddress.isNotEmpty &&
+                      address.phone.isNotEmpty) {
+                    navigator.push(
+                      MaterialPageRoute(
+                        builder: (_) => CheckoutPage(
+                          shippingAddress: address.shippingAddress,
+                          phone: address.phone,
+                        ),
+                      ),
+                    );
+                  } else {
                     scaffoldMessenger.showSnackBar(
-                      SnackBar(
-                        content: Text('Địa chỉ: ${address.shippingAddress}'),
-                        backgroundColor: Colors.black,
-                        behavior: SnackBarBehavior.floating,
+                      const SnackBar(
+                        content: Text(
+                          'Vui lòng cập nhật đầy đủ địa chỉ và SĐT',
+                        ),
+                        backgroundColor: Colors.red,
                       ),
                     );
                   }

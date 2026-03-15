@@ -77,8 +77,25 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       final token = await localDataSource.getToken();
       if (token != null) {
-        final localUser = await localDataSource.getCachedUser();
-        return Right(localUser);
+        if (await networkInfo.isConnected) {
+          try {
+            final remoteUser = await remoteDataSource.getMe();
+            await localDataSource.cacheUser(remoteUser);
+            return Right(remoteUser);
+          } on ServerException catch (e) {
+            // If token is invalid or server down, fallback to cache or log out.
+            // Usually we'd check if e.message is 'Unauthorized'. For safety, we fallback to cache on network blips:
+            try {
+              final localUser = await localDataSource.getCachedUser();
+              return Right(localUser);
+            } catch (_) {
+              return Left(ServerFailure(message: e.message));
+            }
+          }
+        } else {
+          final localUser = await localDataSource.getCachedUser();
+          return Right(localUser);
+        }
       } else {
         return const Left(AuthFailure(message: 'No token found in cache'));
       }

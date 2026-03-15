@@ -18,6 +18,7 @@ abstract class AuthRemoteDataSource {
     String? district,
     String? city,
   });
+  Future<UserModel> getMe();
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
@@ -164,6 +165,41 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
     if (result.data != null && result.data!['updateProfile'] != null) {
       return UserModel.fromJson(result.data!['updateProfile']);
+    } else {
+      throw ServerException(message: 'Invalid response from server');
+    }
+  }
+
+  @override
+  Future<UserModel> getMe() async {
+    const String getMeQuery =
+        r'''
+      query GetMe {
+        getMe {
+          ''' +
+        _userFields +
+        r'''
+        }
+      }
+    ''';
+
+    final options = QueryOptions(
+      document: gql(getMeQuery),
+      fetchPolicy: FetchPolicy.networkOnly,
+    );
+
+    final result = await client.query(options);
+
+    if (result.hasException) {
+      String errorMessage = result.exception.toString();
+      if (result.exception?.graphqlErrors.isNotEmpty == true) {
+        errorMessage = result.exception!.graphqlErrors.first.message;
+      }
+      throw ServerException(message: errorMessage);
+    }
+
+    if (result.data != null && result.data!['getMe'] != null) {
+      return UserModel.fromJson(result.data!['getMe']);
     } else {
       throw ServerException(message: 'Invalid response from server');
     }

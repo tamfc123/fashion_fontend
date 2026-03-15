@@ -38,6 +38,18 @@ import 'features/cart/domain/usecases/get_cart_items_usecase.dart';
 import 'features/cart/domain/usecases/update_cart_item_usecase.dart';
 import 'features/cart/domain/usecases/remove_from_cart_usecase.dart';
 import 'features/cart/presentation/bloc/cart_bloc.dart';
+import 'features/order/data/datasources/order_remote_data_source.dart';
+import 'features/order/data/repositories/order_repository_impl.dart';
+import 'features/order/domain/repositories/order_repository.dart';
+import 'features/order/domain/usecases/checkout_usecase.dart';
+import 'features/order/domain/usecases/get_orders_usecase.dart';
+import 'features/order/presentation/bloc/order_bloc.dart';
+import 'features/wishlist/data/datasources/wishlist_remote_data_source.dart';
+import 'features/wishlist/data/repositories/wishlist_repository_impl.dart';
+import 'features/wishlist/domain/repositories/wishlist_repository.dart';
+import 'features/wishlist/domain/usecases/get_wishlist_usecase.dart';
+import 'features/wishlist/domain/usecases/toggle_wishlist_usecase.dart';
+import 'features/wishlist/presentation/bloc/wishlist_bloc.dart';
 
 final sl = GetIt.instance;
 
@@ -151,6 +163,49 @@ Future<void> init() async {
   );
   sl.registerLazySingleton<CartLocalDataSource>(
     () => CartLocalDataSourceImpl(sharedPreferences: sl()),
+  );
+
+  // Use cases
+  sl.registerLazySingleton(() => CheckoutUseCase(sl()));
+  sl.registerLazySingleton(() => GetOrdersUseCase(sl()));
+
+  // Bloc
+  sl.registerFactory(() => OrderBloc(checkoutUseCase: sl(), getOrdersUseCase: sl()));
+
+  // Repository
+  sl.registerLazySingleton<OrderRepository>(
+    () => OrderRepositoryImpl(remoteDataSource: sl(), networkInfo: sl()),
+  );
+
+  // Data sources
+  sl.registerLazySingleton<OrderRemoteDataSource>(
+    () => OrderRemoteDataSourceImpl(client: sl()),
+  );
+
+  /// Features - Wishlist
+  // Use cases
+  sl.registerLazySingleton(() => GetWishlistUseCase(sl()));
+  sl.registerLazySingleton(() => ToggleWishlistUseCase(sl()));
+
+  // Bloc
+  sl.registerFactory(
+    () => WishlistBloc(
+      getWishlistUseCase: sl(),
+      toggleWishlistUseCase: sl(),
+    ),
+  );
+
+  // Repository
+  sl.registerLazySingleton<WishlistRepository>(
+    () => WishlistRepositoryImpl(
+      remoteDataSource: sl(),
+      networkInfo: sl(),
+    ),
+  );
+
+  // Data sources
+  sl.registerLazySingleton<WishlistRemoteDataSource>(
+    () => WishlistRemoteDataSourceImpl(client: sl()),
   );
 
   // Ánh xạ AuthLocalDataSource thành TokenProvider cho GraphQLClient
