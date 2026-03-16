@@ -64,8 +64,13 @@ class _CheckoutViewState extends State<CheckoutView> {
         if (state is CheckoutSuccess) {
           if (state.order.paymentUrl != null &&
               state.order.paymentUrl!.isNotEmpty) {
+            // Capture context-dependent objects before async gap
+            final navigator = Navigator.of(context);
+            final messenger = ScaffoldMessenger.of(context);
+            final cartBloc = context.read<CartBloc>();
+
             // Handle VNPay
-            await Navigator.of(context).push(
+            await navigator.push(
               MaterialPageRoute(
                 builder: (context) =>
                     PaymentWebView(paymentUrl: state.order.paymentUrl!),
@@ -74,14 +79,14 @@ class _CheckoutViewState extends State<CheckoutView> {
 
             // After returning from WebView
             if (mounted) {
-              context.read<CartBloc>().add(const ClearCartEvent());
-              ScaffoldMessenger.of(context).showSnackBar(
+              cartBloc.add(const ClearCartEvent());
+              messenger.showSnackBar(
                 const SnackBar(
                   content: Text('Chuyển hướng từ cổng thanh toán thành công!'),
                   backgroundColor: Colors.green,
                 ),
               );
-              Navigator.of(context).popUntil((route) => route.isFirst);
+              navigator.popUntil((route) => route.isFirst);
             }
           } else {
             // COD
@@ -240,7 +245,7 @@ class _CheckoutViewState extends State<CheckoutView> {
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
                       itemCount: cartState.items.length,
-                      separatorBuilder: (_, __) => const Divider(height: 24),
+                      separatorBuilder: (_, _) => const Divider(height: 24),
                       itemBuilder: (context, index) {
                         final item = cartState.items[index];
                         return Row(
@@ -314,38 +319,34 @@ class _CheckoutViewState extends State<CheckoutView> {
                         border: Border.all(color: Colors.grey.shade200),
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: Column(
-                        children: [
-                          RadioListTile<String>(
-                            title: const Text(
-                              'Thanh toán tiền mặt (COD)',
-                              style: TextStyle(fontSize: 14),
+                      child: RadioGroup<String>(
+                        groupValue: _paymentMethod,
+                        onChanged: (value) {
+                          if (value != null) {
+                            setState(() => _paymentMethod = value);
+                          }
+                        },
+                        child: Column(
+                          children: [
+                            RadioListTile<String>(
+                              title: const Text(
+                                'Thanh toán tiền mặt (COD)',
+                                style: TextStyle(fontSize: 14),
+                              ),
+                              value: 'COD',
+                              activeColor: Colors.black,
                             ),
-                            value: 'COD',
-                            groupValue: _paymentMethod,
-                            activeColor: Colors.black,
-                            onChanged: (value) {
-                              setState(() {
-                                _paymentMethod = value!;
-                              });
-                            },
-                          ),
-                          const Divider(height: 1),
-                          RadioListTile<String>(
-                            title: const Text(
-                              'Thanh toán qua VNPay',
-                              style: TextStyle(fontSize: 14),
+                            const Divider(height: 1),
+                            RadioListTile<String>(
+                              title: const Text(
+                                'Thanh toán qua VNPay',
+                                style: TextStyle(fontSize: 14),
+                              ),
+                              value: 'VNPAY',
+                              activeColor: Colors.black,
                             ),
-                            value: 'VNPAY',
-                            groupValue: _paymentMethod,
-                            activeColor: Colors.black,
-                            onChanged: (value) {
-                              setState(() {
-                                _paymentMethod = value!;
-                              });
-                            },
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                     const SizedBox(height: 24),
@@ -386,7 +387,7 @@ class _CheckoutViewState extends State<CheckoutView> {
                 color: Colors.white,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
+                    color: Colors.black.withValues(alpha: 0.05),
                     blurRadius: 10,
                     offset: const Offset(0, -5),
                   ),

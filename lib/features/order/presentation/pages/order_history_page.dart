@@ -19,17 +19,16 @@ class OrderHistoryPage extends StatelessWidget {
         appBar: AppBar(
           title: const Text(
             'LỊCH SỬ ĐƠN HÀNG',
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              letterSpacing: 1.2,
-            ),
+            style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.2),
           ),
           centerTitle: true,
         ),
         body: BlocBuilder<OrderBloc, OrderState>(
           builder: (context, state) {
             if (state is OrderLoading) {
-              return const Center(child: CircularProgressIndicator(color: Colors.black));
+              return const Center(
+                child: CircularProgressIndicator(color: Colors.black),
+              );
             } else if (state is OrderHistoryLoaded) {
               if (state.orders.isEmpty) {
                 return const Center(
@@ -42,7 +41,7 @@ class OrderHistoryPage extends StatelessWidget {
               return ListView.separated(
                 padding: const EdgeInsets.all(16),
                 itemCount: state.orders.length,
-                separatorBuilder: (_, __) => const SizedBox(height: 16),
+                separatorBuilder: (_, _) => const SizedBox(height: 16),
                 itemBuilder: (context, index) {
                   final order = state.orders[index];
                   return _OrderCard(order: order);
@@ -77,7 +76,7 @@ class _OrderCard extends StatelessWidget {
         border: Border.all(color: Colors.black12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -160,7 +159,7 @@ class _StatusBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: color),
       ),

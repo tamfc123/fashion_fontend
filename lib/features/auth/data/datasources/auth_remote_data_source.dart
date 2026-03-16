@@ -145,10 +145,10 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       variables: {
         'input': {
           'name': name,
-          if (phone != null) 'phone': phone,
-          if (street != null) 'street': street,
-          if (district != null) 'district': district,
-          if (city != null) 'city': city,
+          if (phone != null) 'phone': phone, // ignore: prefer_null_aware_elements
+          if (street != null) 'street': street, // ignore: prefer_null_aware_elements
+          if (district != null) 'district': district, // ignore: prefer_null_aware_elements
+          if (city != null) 'city': city, // ignore: prefer_null_aware_elements
         },
       },
     );

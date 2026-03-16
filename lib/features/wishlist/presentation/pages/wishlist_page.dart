@@ -19,10 +19,7 @@ class WishlistPage extends StatelessWidget {
       appBar: AppBar(
         title: const Text(
           'DANH SÁCH YÊU THÍCH',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            letterSpacing: 1.2,
-          ),
+          style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.2),
         ),
         centerTitle: true,
       ),
@@ -119,7 +116,7 @@ class _WishlistProductCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -133,9 +130,13 @@ class _WishlistProductCard extends StatelessWidget {
                 children: [
                   Container(
                     decoration: BoxDecoration(
-                      borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                      borderRadius: const BorderRadius.vertical(
+                        top: Radius.circular(16),
+                      ),
                       image: DecorationImage(
-                        image: NetworkImage(product.images.isNotEmpty ? product.images[0] : ''),
+                        image: NetworkImage(
+                          product.images.isNotEmpty ? product.images[0] : '',
+                        ),
                         fit: BoxFit.cover,
                       ),
                     ),
@@ -145,7 +146,9 @@ class _WishlistProductCard extends StatelessWidget {
                     right: 8,
                     child: GestureDetector(
                       onTap: () {
-                        context.read<WishlistBloc>().add(ToggleWishlistEvent(productId: product.id));
+                        context.read<WishlistBloc>().add(
+                          ToggleWishlistEvent(productId: product.id),
+                        );
                       },
                       child: Container(
                         padding: const EdgeInsets.all(6),
