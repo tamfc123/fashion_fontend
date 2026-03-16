@@ -18,6 +18,7 @@ class _AddressPageState extends State<AddressPage> {
   late TextEditingController _streetController;
   late TextEditingController _districtController;
   late TextEditingController _cityController;
+  bool _isSubmitting = false; // Track khi nào user ấn nút LƯU
 
   @override
   void initState() {
@@ -48,6 +49,7 @@ class _AddressPageState extends State<AddressPage> {
 
   void _confirm(BuildContext context, String userName) {
     if (_formKey.currentState!.validate()) {
+      setState(() => _isSubmitting = true); // Đánh dấu đang submit
       final address = AddressEntity(
         phone: _phoneController.text.trim(),
         street: _streetController.text.trim(),
@@ -68,11 +70,14 @@ class _AddressPageState extends State<AddressPage> {
     }
   }
 
+
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<AuthBloc, AuthState>(
       listener: (context, state) {
+        if (!_isSubmitting) return; // Chỉ xử lý khi user đã ấn nút LƯU
         if (state is AuthAuthenticated) {
+          _isSubmitting = false;
           final address = AddressEntity(
             phone: _phoneController.text.trim(),
             street: _streetController.text.trim(),
@@ -87,6 +92,7 @@ class _AddressPageState extends State<AddressPage> {
           );
           Navigator.of(context).pop(address);
         } else if (state is AuthError) {
+          _isSubmitting = false;
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(state.message), backgroundColor: Colors.red),
           );

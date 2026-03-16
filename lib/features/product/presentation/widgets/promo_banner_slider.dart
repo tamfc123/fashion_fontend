@@ -28,7 +28,7 @@ class PromoBannerSlider extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  'NEW\nCOLLECTION',
+                  'BỘ SƯU TẬP MỚI',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 32,
@@ -39,7 +39,7 @@ class PromoBannerSlider extends StatelessWidget {
                 ),
                 SizedBox(height: 12),
                 Text(
-                  'Explore the minimal drop',
+                  'Khám phá bộ sưu tập mới',
                   style: TextStyle(
                     color: Colors.white70,
                     fontSize: 14,

@@ -64,12 +64,11 @@ class _HomePageState extends State<HomePage> {
           index: _currentIndex,
           children: [
             _buildHomeTab(context),
-            _buildSearchTab(),
             _buildCartTab(),
             _buildProfileTab(context),
           ],
         ),
-        bottomNavigationBar: _currentIndex == 2
+        bottomNavigationBar: _currentIndex == 1
             ? null
             : BottomNavigationBar(
                 currentIndex: _currentIndex,
@@ -85,10 +84,6 @@ class _HomePageState extends State<HomePage> {
                   const BottomNavigationBarItem(
                     icon: Icon(Icons.home),
                     label: 'Trang Chủ',
-                  ),
-                  const BottomNavigationBarItem(
-                    icon: Icon(Icons.search),
-                    label: 'Tìm Kiếm',
                   ),
                   BottomNavigationBarItem(
                     icon: BlocBuilder<CartBloc, CartState>(
@@ -137,6 +132,7 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
+
 
   // --- TAB 1: HOME (Feed) ---
   Widget _buildHomeTab(BuildContext context) {
@@ -312,16 +308,6 @@ class _HomePageState extends State<HomePage> {
             },
           ),
         ),
-      ),
-    );
-  }
-
-  // --- TAB 2: SEARCH ---
-  Widget _buildSearchTab() {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Tìm Kiếm')),
-      body: const Center(
-        child: Chip(label: Text('Hệ thống đang cập nhật dữ liệu... 🚧')),
       ),
     );
   }
