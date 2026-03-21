@@ -30,3 +30,5 @@ class ProductError extends ProductState {
   @override
   List<Object?> get props => [message];
 }
+
+class ProductSearching extends ProductState {}

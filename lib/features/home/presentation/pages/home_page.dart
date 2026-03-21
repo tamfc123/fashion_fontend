@@ -1,3 +1,4 @@
+import 'package:fashion_ecommerce_app/features/product/presentation/pages/search_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -133,7 +134,6 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-
   // --- TAB 1: HOME (Feed) ---
   Widget _buildHomeTab(BuildContext context) {
     return BlocProvider(
@@ -152,6 +152,16 @@ class _HomePageState extends State<HomePage> {
               fontSize: 22,
             ),
           ),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.search, color: Colors.black),
+              onPressed: () {
+                Navigator.of(
+                  context,
+                ).push(MaterialPageRoute(builder: (_) => const SearchPage()));
+              },
+            ),
+          ],
         ),
         body: RefreshIndicator(
           color: Colors.black,
