@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -73,7 +74,7 @@ class _AddToCartBottomSheetState extends State<AddToCartBottomSheet> {
                           borderRadius: BorderRadius.circular(8),
                           image: widget.product.images.isNotEmpty
                               ? DecorationImage(
-                                  image: NetworkImage(
+                                  image: CachedNetworkImageProvider(
                                     widget.product.images.first,
                                   ),
                                   fit: BoxFit.cover,
@@ -354,7 +355,7 @@ class _FlightAnimationWidgetState extends State<FlightAnimationWidget>
                 ],
                 image: widget.imageUrl.isNotEmpty
                     ? DecorationImage(
-                        image: NetworkImage(widget.imageUrl),
+                        image: CachedNetworkImageProvider(widget.imageUrl),
                         fit: BoxFit.cover,
                       )
                     : null,

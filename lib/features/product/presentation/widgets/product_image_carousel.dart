@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 class ProductImageCarousel extends StatefulWidget {
@@ -69,10 +70,13 @@ class _ProductImageCarouselState extends State<ProductImageCarousel> {
               });
             },
             itemBuilder: (context, index) {
-              return Image.network(
-                widget.images[index],
+              return CachedNetworkImage(
+                imageUrl: widget.images[index],
                 fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) => const Icon(
+                placeholder: (context, url) => Container(
+                  color: Colors.grey[200],
+                ),
+                errorWidget: (context, url, error) => const Icon(
                   Icons.broken_image,
                   size: 50,
                   color: Colors.grey,

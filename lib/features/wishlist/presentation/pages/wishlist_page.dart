@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -133,12 +134,14 @@ class _WishlistProductCard extends StatelessWidget {
                       borderRadius: const BorderRadius.vertical(
                         top: Radius.circular(16),
                       ),
-                      image: DecorationImage(
-                        image: NetworkImage(
-                          product.images.isNotEmpty ? product.images[0] : '',
-                        ),
-                        fit: BoxFit.cover,
-                      ),
+                      image: product.images.isNotEmpty
+                          ? DecorationImage(
+                              image: CachedNetworkImageProvider(
+                                product.images[0],
+                              ),
+                              fit: BoxFit.cover,
+                            )
+                          : null,
                     ),
                   ),
                   Positioned(

@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -49,10 +50,14 @@ class ProductCard extends StatelessWidget {
                     topRight: Radius.circular(11),
                   ),
                   child: product.images.isNotEmpty
-                      ? Image.network(
-                          product.images.first,
+                      ? CachedNetworkImage(
+                          imageUrl: product.images.first,
                           fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) =>
+                          width: double.infinity,
+                          height: double.infinity,
+                          fadeInDuration: Duration.zero,
+                          fadeOutDuration: Duration.zero,
+                          errorWidget: (context, url, error) =>
                               const Icon(
                                 Icons.broken_image,
                                 color: Colors.grey,

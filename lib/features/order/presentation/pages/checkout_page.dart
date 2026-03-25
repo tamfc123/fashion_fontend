@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -259,7 +260,9 @@ class _CheckoutViewState extends State<CheckoutView> {
                                 borderRadius: BorderRadius.circular(8),
                                 image: item.imageUrl.isNotEmpty
                                     ? DecorationImage(
-                                        image: NetworkImage(item.imageUrl),
+                                        image: CachedNetworkImageProvider(
+                                          item.imageUrl,
+                                        ),
                                         fit: BoxFit.cover,
                                       )
                                     : null,
