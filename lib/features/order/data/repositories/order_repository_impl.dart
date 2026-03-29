@@ -55,4 +55,20 @@ class OrderRepositoryImpl implements OrderRepository {
       return const Left(NetworkFailure(message: 'No internet connection'));
     }
   }
+
+  @override
+  Future<Either<Failure, void>> confirmVnpayReturn(String returnUrl) async {
+    if (await networkInfo.isConnected) {
+      try {
+        await remoteDataSource.confirmVnpayReturn(returnUrl);
+        return const Right(null);
+      } on ServerException catch (e) {
+        return Left(ServerFailure(message: e.message));
+      } catch (e) {
+        return Left(ServerFailure(message: e.toString()));
+      }
+    } else {
+      return const Left(NetworkFailure(message: 'No internet connection'));
+    }
+  }
 }

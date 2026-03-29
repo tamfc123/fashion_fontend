@@ -42,6 +42,7 @@ import 'features/order/data/datasources/order_remote_data_source.dart';
 import 'features/order/data/repositories/order_repository_impl.dart';
 import 'features/order/domain/repositories/order_repository.dart';
 import 'features/order/domain/usecases/checkout_usecase.dart';
+import 'features/order/domain/usecases/confirm_vnpay_usecase.dart';
 import 'features/order/domain/usecases/get_orders_usecase.dart';
 import 'features/order/presentation/bloc/order_bloc.dart';
 import 'features/wishlist/data/datasources/wishlist_remote_data_source.dart';
@@ -168,9 +169,14 @@ Future<void> init() async {
   // Use cases
   sl.registerLazySingleton(() => CheckoutUseCase(sl()));
   sl.registerLazySingleton(() => GetOrdersUseCase(sl()));
+  sl.registerLazySingleton(() => ConfirmVnpayUseCase(sl()));
 
   // Bloc
-  sl.registerFactory(() => OrderBloc(checkoutUseCase: sl(), getOrdersUseCase: sl()));
+  sl.registerFactory(() => OrderBloc(
+    checkoutUseCase: sl(),
+    getOrdersUseCase: sl(),
+    confirmVnpayUseCase: sl(),
+  ));
 
   // Repository
   sl.registerLazySingleton<OrderRepository>(

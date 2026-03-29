@@ -2,6 +2,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/utils/usecase.dart';
 import '../../domain/usecases/checkout_usecase.dart';
+import '../../domain/usecases/confirm_vnpay_usecase.dart';
 import '../../domain/usecases/get_orders_usecase.dart';
 import 'order_event.dart';
 import 'order_state.dart';
@@ -9,13 +10,16 @@ import 'order_state.dart';
 class OrderBloc extends Bloc<OrderEvent, OrderState> {
   final CheckoutUseCase checkoutUseCase;
   final GetOrdersUseCase getOrdersUseCase;
+  final ConfirmVnpayUseCase confirmVnpayUseCase;
 
   OrderBloc({
     required this.checkoutUseCase,
     required this.getOrdersUseCase,
+    required this.confirmVnpayUseCase,
   }) : super(const OrderInitial()) {
     on<CheckoutEvent>(_onCheckout);
     on<GetOrdersEvent>(_onGetOrders);
+    on<ConfirmVnpayEvent>(_onConfirmVnpay);
   }
 
   Future<void> _onCheckout(
@@ -49,6 +53,23 @@ class OrderBloc extends Bloc<OrderEvent, OrderState> {
     failureOrOrders.fold(
       (failure) => emit(OrderError(message: _mapFailureToMessage(failure))),
       (orders) => emit(OrderHistoryLoaded(orders: orders)),
+    );
+  }
+
+  Future<void> _onConfirmVnpay(
+    ConfirmVnpayEvent event,
+    Emitter<OrderState> emit,
+  ) async {
+    emit(const OrderLoading());
+
+    final result = await confirmVnpayUseCase(
+      ConfirmVnpayParams(returnUrl: event.returnUrl),
+    );
+
+    result.fold(
+      (failure) =>
+          emit(VnpayConfirmFailure(message: _mapFailureToMessage(failure))),
+      (_) => emit(const VnpayConfirmSuccess()),
     );
   }
 

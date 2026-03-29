@@ -1,4 +1,5 @@
 import 'package:graphql_flutter/graphql_flutter.dart' hide ServerException;
+import 'package:http/http.dart' as http;
 import '../../../../core/error/exceptions.dart';
 import '../models/order_model.dart';
 
@@ -10,6 +11,8 @@ abstract class OrderRemoteDataSource {
   });
 
   Future<List<OrderModel>> getOrders();
+
+  Future<void> confirmVnpayReturn(String returnUrl);
 }
 
 class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
@@ -127,6 +130,18 @@ class OrderRemoteDataSourceImpl implements OrderRemoteDataSource {
       return ordersJson.map((json) => OrderModel.fromJson(json)).toList();
     } else {
       return [];
+    }
+  }
+
+  @override
+  Future<void> confirmVnpayReturn(String returnUrl) async {
+    // Replace localhost with 127.0.0.1 to fix iOS WebView resolution issue
+    final urlToCall = returnUrl.replaceAll('localhost', '127.0.0.1');
+    final response = await http.get(Uri.parse(urlToCall));
+    if (response.statusCode != 200) {
+      throw ServerException(
+        message: 'VNPay return confirmation failed: ${response.statusCode}',
+      );
     }
   }
 }

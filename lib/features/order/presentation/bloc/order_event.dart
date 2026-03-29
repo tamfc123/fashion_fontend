@@ -25,3 +25,12 @@ class CheckoutEvent extends OrderEvent {
 class GetOrdersEvent extends OrderEvent {
   const GetOrdersEvent();
 }
+
+class ConfirmVnpayEvent extends OrderEvent {
+  final String returnUrl;
+
+  const ConfirmVnpayEvent({required this.returnUrl});
+
+  @override
+  List<Object> get props => [returnUrl];
+}

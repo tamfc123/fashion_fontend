@@ -43,3 +43,16 @@ class OrderHistoryLoaded extends OrderState {
   @override
   List<Object> get props => [orders];
 }
+
+class VnpayConfirmSuccess extends OrderState {
+  const VnpayConfirmSuccess();
+}
+
+class VnpayConfirmFailure extends OrderState {
+  final String message;
+
+  const VnpayConfirmFailure({required this.message});
+
+  @override
+  List<Object> get props => [message];
+}

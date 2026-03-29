@@ -10,4 +10,6 @@ abstract class OrderRepository {
   });
 
   Future<Either<Failure, List<OrderEntity>>> getOrders();
+
+  Future<Either<Failure, void>> confirmVnpayReturn(String returnUrl);
 }
